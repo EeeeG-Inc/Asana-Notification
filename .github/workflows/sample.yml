@@ -1,0 +1,27 @@
+name: Sample
+
+# トリガーイベント
+on:
+  # 1. main ブランチへのプッシュ
+  push:
+    branches:
+      - main
+  # 2. GitHub 上の手動実行
+  workflow_dispatch:
+
+jobs:
+  sample-test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: Setup Python
+        uses: actions/setup-python@v2
+        with:
+          python-version: '3.9'
+          architecture: 'x64'
+      - name: Get Python version
+        run: python -V
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+      - name: Run Python Script
+        run: python sample.py
