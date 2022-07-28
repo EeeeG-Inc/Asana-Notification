@@ -28,4 +28,18 @@ jobs:
       - name: Install dependencies
         run: pip install -r requirements.txt
       - name: Run Python Script
+        # GitHub Secrets に登録した環境変数
+        env:
+          PERSONAL_ACCESS_TOKEN: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
+          WORKSPACE_ID: ${{ secrets.WORKSPACE_ID }}
+          PROJIECT_ID_DEVELOP: ${{ secrets.PROJIECT_ID_DEVELOP }}
+          PROJIECT_ID_DESIGN: ${{ secrets.PROJIECT_ID_DESIGN }}
+          PROJIECT_ID_GENERAL_AFFAIRS: ${{ secrets.PROJIECT_ID_GENERAL_AFFAIRS }}
+          PROJIECT_ID_SALES: ${{ secrets.PROJIECT_ID_SALES }}
+          PROJIECT_ID_HUMAN_RESOURCE: ${{ secrets.PROJIECT_ID_HUMAN_RESOURCE }}
+          WEBHOOK_URL_DEVELOP: ${{ secrets.WEBHOOK_URL_DEVELOP }}
+          WEBHOOK_URL_DESIGN: ${{ secrets.WEBHOOK_URL_DESIGN }}
+          WEBHOOK_URL_GENERAL_AFFAIRS: ${{ secrets.WEBHOOK_URL_GENERAL_AFFAIRS }}
+          WEBHOOK_URL_SALES: ${{ secrets.WEBHOOK_URL_SALES }}
+          WEBHOOK_URL_HUMAN_RESOURCE: ${{ secrets.WEBHOOK_URL_HUMAN_RESOURCE }}
         run: python asana_notification_for_slack.py
