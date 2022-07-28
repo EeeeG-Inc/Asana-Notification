@@ -1,44 +1,40 @@
-import asana
-import os
-import time
+from config import Config
 import datetime
 from dotenv import load_dotenv
-import requests
 import json
+import requests
+import time
+
 
 load_dotenv()
 
 
 class MyAsana():
     def __init__(self):
-        self.client = asana.Client.access_token(os.getenv('PERSONAL_ACCESS_TOKEN'))
-        self.workspace_id = os.getenv('WORKSPACE_ID')
-        self.project_ids = {
-            'develop': os.getenv('PROJIECT_ID_DEVELOP'),
-            'design': os.getenv('PROJIECT_ID_DESIGN'),
-            'general_affairs': os.getenv('PROJIECT_ID_GENERAL_AFFAIRS'),
-            'sales': os.getenv('PROJIECT_ID_SALES'),
-            'human_resource': os.getenv('PROJIECT_ID_HUMAN_RESOURCE'),
-        }
-        self.web_hook_urls = {
-            'develop': os.getenv('WEBHOOK_URL_DEVELOP'),
-            'design': os.getenv('WEBHOOK_URL_DESIGN'),
-            'general_affairs': os.getenv('WEBHOOK_URL_GENERAL_AFFAIRS'),
-            'sales': os.getenv('WEBHOOK_URL_SALES'),
-            'human_resource': os.getenv('WEBHOOK_URL_HUMAN_RESOURCE'),
-        }
-        self.bot_name = 'Asana Deadline Tasks'
-        self.bot_emoji = ':skull:'
+        self.config = Config()
 
+    """
+    ワークスペースに参加しているユーザ全員を取得する
+    """
     def get_users(self):
-        return list(self.client.users.get_users({'workspace': self.workspace_id}, opt_pretty=True))
+        return list(self.config.client.users.get_users({'workspace': self.config.workspace_id}, opt_pretty=True))
 
+    """
+    プロジェクト情報を取得する
+    内在しているタスク、プロジェクト名称など取得できる
+    """
     def get_project(self, project_id):
-        return self.client.projects.get_project(project_id)
+        return self.config.client.projects.get_project(project_id)
 
+    """
+    単一プロジェクトに紐付いたセクションを取得する
+    """
     def find_sections_for_project(self, project_id):
-        return self.client.sections.get_sections_for_project(project_id, {}, opt_pretty=True)
+        return self.config.client.sections.get_sections_for_project(project_id, {}, opt_pretty=True)
 
+    """
+    単一プロジェクトに紐付いたタスクを取得する
+    """
     def find_tasks_for_slack(self, project_id):
         param = {
             'completed_since': 'now',
@@ -54,12 +50,12 @@ class MyAsana():
             ],
         }
 
-        return self.client.tasks.get_tasks(param, opt_pretty=False)
+        return self.config.client.tasks.get_tasks(param, opt_pretty=False)
 
     """
-    指定した担当者の 1 週間以内の期日のタスクを返却する
+    従業員に紐付いた、全てのプロジェクトのタスクを取得する
     """
-    def find_tasks_for_notion(self, project_id, assignee_id=None):
+    def find_tasks_for_notion(self, project_id, assignee_id):
         param = {
             'completed_since': 'now',
             'opt_fields': [
@@ -73,26 +69,29 @@ class MyAsana():
             ],
         }
 
-        # Assginee + Workspace ※ project を同時に指定できない
+        # Assginee + Workspace ※ この絞り込みは project を同時に指定できない
         if assignee_id:
             param['assignee'] = assignee_id
-            param['workspace'] = self.workspace_id
+            param['workspace'] = self.config.workspace_id
         else:
             param['project'] = project_id
 
-        return self.client.tasks.get_tasks(param, opt_pretty=False)
+        return self.config.client.tasks.get_tasks(param, opt_pretty=False)
 
+    """
+    Slack 投稿用のテキストを作成
+    """
     def get_str_tasks_for_slack(self, project_id, section_ids):
         text = '期限切れのタスク一覧\n'
 
         for task in self.find_tasks_for_slack(project_id):
             section = self.get_section(section_ids, task)
 
-            # 期限が 1 週間より先のタスクは無視する
-            if not self.is_within_limit(task):
+            # 期限が今日までタスクを取得
+            if not self.is_within_limit(task, 0):
                 continue
 
-            text += f'■[{section["name"] if section is not None else None}]\t' + \
+            text += f'■ [{section["name"] if section is not None else None}]\t' + \
                 f'{task["name"]}\t' + \
                 f'{task["assignee"]["name"] if task["assignee"] is not None else None}\t' + \
                 f'{task["due_on"]}\t' +\
@@ -101,14 +100,22 @@ class MyAsana():
 
         return text
 
-    def get_str_tasks_for_notion(self, project_id, section_ids, assignee_id):
-        text = '|Priority|Section|Task|Name|Due On|Workload|URL|\n'
-        text += '|:-|:-|:-|:-|:-|:-|:-|\n'
+    """
+    Notion に貼り付けるとインラインデータベースになる Markdown テーブル書式のテキストを作成
+    """
+    def get_str_tasks_for_notion(self, project_id, section_ids, assignee_id, isSlackNotification=False):
+        if isSlackNotification:
+            text = '```'
+        else:
+            text = ''
+
+        text += '|Priority|Section|Task|Name|Due On|Workload|URL|Note|\n'
+        text += '|:-|:-|:-|:-|:-|:-|:-|:-|\n'
 
         for task in self.find_tasks_for_notion(project_id, assignee_id):
 
-            # 期限が 1 週間より先のタスクは無視する
-            if not self.is_within_limit(task, 0):
+            # 期限が 1 週間先までのタスクを取得
+            if not self.is_within_limit(task, 7):
                 continue
 
             section = self.get_section(section_ids, task)
@@ -119,11 +126,20 @@ class MyAsana():
                 f'|{task["assignee"]["name"] if task["assignee"] is not None else None}' + \
                 f'|{task["due_on"]}' +\
                 '|0' + \
-                f'|https://app.asana.com/0/{project_id}/{task["gid"]}'
+                f'|https://app.asana.com/0/{project_id}/{task["gid"]}' + \
+                '|'
             text += "|\n"
+
+        if isSlackNotification:
+            text += '```'
 
         return text
 
+    """
+    Asana でとってきたタスクにセクションを設定する
+    ※ EeeeG では Open / Icebox / Backlog / In Progress / Closed / Milestone といった Board 情報が該当する
+    事前に find_sections_for_project でセクションを取得していないと None になってしまう
+    """
     def get_section(self, section_ids, task):
         sections = list(
             filter(
@@ -133,6 +149,9 @@ class MyAsana():
         )
         return sections[0]['section'] if len(sections) > 0 else None
 
+    """
+    今日から何日後以降のタスクは不要、という判定を作成できる
+    """
     def is_within_limit(self, task, limit=0):
         if task["due_on"] is None:
             return False
@@ -146,16 +165,30 @@ class MyAsana():
 
         return True
 
-    def slack_post(self, project_id, text):
-        for key, val in self.project_ids.items():
-            if val == project_id:
-                web_hook_url = self.web_hook_urls[key]
-                break
+    """
+    該当する Slack チャンネルに Post する
+    specify_webhook_url で直接 webhook_url を指定することも可能
+    """
+    def slack_post(self, project_id, text, bot_name, bot_emoji, specify_webhook_url=None):
+        webhook_url = None
 
-        requests.post(web_hook_url, json.dumps({
+        if specify_webhook_url is None:
+            # project_id に紐づく webhook_url を検索
+            for key, val in self.config.project_ids.items():
+                if val == project_id:
+                    webhook_url = self.config.webhook_urls[key]
+                    break
+        else:
+            webhook_url = specify_webhook_url
+
+        # 紐づく webhook_url がなかった場合、デフォルトのチャンネルに通知する
+        if webhook_url is None:
+            webhook_url = self.config.webhook_urls['default']
+
+        requests.post(webhook_url, json.dumps({
             'text': text,
-            'username': self.bot_name,
-            'icon_emoji': self.bot_emoji,
+            'username': bot_name,
+            'icon_emoji': bot_emoji,
             # ポストされるメンションの有効化
             'link_names': 1,
         }))

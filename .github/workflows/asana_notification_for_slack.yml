@@ -10,8 +10,8 @@ on:
   workflow_dispatch:
   # 3. crontab
   schedule:
-    # 毎日 1:00 (UTC) -> 毎日 10:00 (JST)
-    - cron:  '0 1 * * *'
+    # 毎日 0:00 (UTC) -> 毎日 9:00 (JST)
+    - cron:  '0 0 * * *'
 
 jobs:
   asana_notification_for_slack:
@@ -37,9 +37,13 @@ jobs:
           PROJIECT_ID_GENERAL_AFFAIRS: ${{ secrets.PROJIECT_ID_GENERAL_AFFAIRS }}
           PROJIECT_ID_SALES: ${{ secrets.PROJIECT_ID_SALES }}
           PROJIECT_ID_HUMAN_RESOURCE: ${{ secrets.PROJIECT_ID_HUMAN_RESOURCE }}
+          WEBHOOK_URL_DEFAULT: ${{ secrets.WEBHOOK_URL_DEFAULT }}
           WEBHOOK_URL_DEVELOP: ${{ secrets.WEBHOOK_URL_DEVELOP }}
           WEBHOOK_URL_DESIGN: ${{ secrets.WEBHOOK_URL_DESIGN }}
           WEBHOOK_URL_GENERAL_AFFAIRS: ${{ secrets.WEBHOOK_URL_GENERAL_AFFAIRS }}
           WEBHOOK_URL_SALES: ${{ secrets.WEBHOOK_URL_SALES }}
           WEBHOOK_URL_HUMAN_RESOURCE: ${{ secrets.WEBHOOK_URL_HUMAN_RESOURCE }}
-        run: python asana_notification_for_slack.py
+          WEBHOOK_URL_WEEKLY_TODO: ${{ secrets.WEBHOOK_URL_WEEKLY_TODO }}
+        run:
+          python asana_deadline_notification_for_slack.py
+          python asana_weekly_todo_notification_for_slack.py
