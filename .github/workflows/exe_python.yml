@@ -8,6 +8,10 @@ on:
       - main
   # 2. GitHub 上の手動実行
   workflow_dispatch:
+  # 3. crontab
+  schedule:
+    # 毎日 1:00 (UTC) -> 毎日 10:00 (JST)
+    - cron:  '0 1 * * *'
 
 jobs:
   sample-test:
@@ -24,4 +28,4 @@ jobs:
       - name: Install dependencies
         run: pip install -r requirements.txt
       - name: Run Python Script
-        run: python sample.py
+        run: python asana_notification.py
