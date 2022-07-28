@@ -1,4 +1,4 @@
-name: Sample
+name: asana_notification_for_slack
 
 # トリガーイベント
 on:
@@ -14,7 +14,7 @@ on:
     - cron:  '0 1 * * *'
 
 jobs:
-  sample-test:
+  asana_notification_for_slack:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
@@ -28,4 +28,4 @@ jobs:
       - name: Install dependencies
         run: pip install -r requirements.txt
       - name: Run Python Script
-        run: python asana_notification.py
+        run: python asana_notification_for_slack.py
