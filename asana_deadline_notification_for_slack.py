@@ -1,8 +1,8 @@
 from my_asana import MyAsana
 
 
-class AsanaNotificationForSlack:
-    def run():
+class AsanaDeadlineNotificationForSlack:
+    def run(self):
         asana = MyAsana()
 
         for _, project_id in asana.config.project_ids.items():
@@ -13,5 +13,5 @@ class AsanaNotificationForSlack:
         print('Slack Post Done!')
 
 
-asana_notification_for_slack = AsanaNotificationForSlack()
-asana_notification_for_slack.run()
+asana_deadline_notification_for_slack = AsanaDeadlineNotificationForSlack()
+asana_deadline_notification_for_slack.run()

@@ -1,7 +1,7 @@
 from my_asana import MyAsana
 
 
-class AsanaClipboardCopyForNotion():
+class AsanaWeeklyTodoNotificationForSlack():
 
     def run(self):
         asana = MyAsana()
@@ -22,5 +22,5 @@ class AsanaClipboardCopyForNotion():
         print('Slack Post About Weekly TODO Done!')
 
 
-asana_clipboard_copy_for_notion = AsanaClipboardCopyForNotion()
-asana_clipboard_copy_for_notion.run()
+asana_weekly_todo_notification_for_slack = AsanaWeeklyTodoNotificationForSlack()
+asana_weekly_todo_notification_for_slack.run()

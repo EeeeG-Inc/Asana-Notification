@@ -2,7 +2,7 @@ from my_asana import MyAsana
 import pyperclip
 
 
-class AsanaClipboardCopyForNotion():
+class AsanaWeeklyTodoCopyForNotion():
 
     def run(self):
         asana = MyAsana()
@@ -36,5 +36,5 @@ class AsanaClipboardCopyForNotion():
         print('Clipboad Copied!')
 
 
-asana_clipboard_copy_for_notion = AsanaClipboardCopyForNotion()
-asana_clipboard_copy_for_notion.run()
+asana_weekly_todo_copy_for_notion = AsanaWeeklyTodoCopyForNotion()
+asana_weekly_todo_copy_for_notion.run()
