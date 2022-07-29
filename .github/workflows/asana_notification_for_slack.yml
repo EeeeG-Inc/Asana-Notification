@@ -43,6 +43,7 @@ jobs:
           WEBHOOK_URL_SALES: ${{ secrets.WEBHOOK_URL_SALES }}
           WEBHOOK_URL_HUMAN_RESOURCE: ${{ secrets.WEBHOOK_URL_HUMAN_RESOURCE }}
           WEBHOOK_URL_WEEKLY_TODO: ${{ secrets.WEBHOOK_URL_WEEKLY_TODO }}
+          IS_DEBUG: ${{ secrets.IS_DEBUG }}
         run: python asana_deadline_todo_notification_for_slack.py
       - name: Run asana_weekly_todo_notification_for_slack.py
         env:
@@ -60,4 +61,5 @@ jobs:
           WEBHOOK_URL_SALES: ${{ secrets.WEBHOOK_URL_SALES }}
           WEBHOOK_URL_HUMAN_RESOURCE: ${{ secrets.WEBHOOK_URL_HUMAN_RESOURCE }}
           WEBHOOK_URL_WEEKLY_TODO: ${{ secrets.WEBHOOK_URL_WEEKLY_TODO }}
+          IS_DEBUG: ${{ secrets.IS_DEBUG }}
         run: python asana_weekly_todo_notification_for_slack.py
