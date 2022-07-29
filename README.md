@@ -37,7 +37,7 @@ pipenv shell
 
 - GitHub の Repository Secrets に設定
 - `config.py` に設定
-- .`github/workflows/asana_notification_for_slack.yml` の env エントリに設定
+- `.github/workflows/asana_notification_for_slack.yml` の env エントリに設定
 - ローカルで動かしたい場合は `.env` に設定
 
 ## スクリプト

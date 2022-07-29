@@ -10,7 +10,7 @@ class AsanaDeadlineNotificationForSlack:
             text = asana.get_str_tasks_for_slack(project_id, section_ids)
             asana.slack_post(project_id, text, 'Asana Deadline Tasks', ':skull:')
 
-        print('Slack Post Done!')
+        print('Slack Post About Deadline Done!')
 
 
 asana_deadline_notification_for_slack = AsanaDeadlineNotificationForSlack()
