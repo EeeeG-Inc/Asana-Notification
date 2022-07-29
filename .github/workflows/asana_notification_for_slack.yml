@@ -10,8 +10,8 @@ on:
   workflow_dispatch:
   # 3. crontab
   schedule:
-    # 毎日 0:00 (UTC) -> 毎日 9:00 (JST)
-    - cron:  '0 0 * * *'
+    # 月-金 0:00 (UTC) -> 月-金 9:00 (JST)
+    - cron: "0 0 * * 1-5"
 
 jobs:
   asana_notification_for_slack:
@@ -21,8 +21,8 @@ jobs:
       - name: Setup Python
         uses: actions/setup-python@v2
         with:
-          python-version: '3.9'
-          architecture: 'x64'
+          python-version: "3.9"
+          architecture: "x64"
       - name: Get Python version
         run: python -V
       - name: Install dependencies
@@ -43,8 +43,7 @@ jobs:
           WEBHOOK_URL_SALES: ${{ secrets.WEBHOOK_URL_SALES }}
           WEBHOOK_URL_HUMAN_RESOURCE: ${{ secrets.WEBHOOK_URL_HUMAN_RESOURCE }}
           WEBHOOK_URL_WEEKLY_TODO: ${{ secrets.WEBHOOK_URL_WEEKLY_TODO }}
-        run:
-          python asana_deadline_todo_notification_for_slack.py
+        run: python asana_deadline_todo_notification_for_slack.py
       - name: Run asana_weekly_todo_notification_for_slack.py
         env:
           PERSONAL_ACCESS_TOKEN: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
@@ -61,5 +60,4 @@ jobs:
           WEBHOOK_URL_SALES: ${{ secrets.WEBHOOK_URL_SALES }}
           WEBHOOK_URL_HUMAN_RESOURCE: ${{ secrets.WEBHOOK_URL_HUMAN_RESOURCE }}
           WEBHOOK_URL_WEEKLY_TODO: ${{ secrets.WEBHOOK_URL_WEEKLY_TODO }}
-        run:
-          python asana_weekly_todo_notification_for_slack.py
+        run: python asana_weekly_todo_notification_for_slack.py
