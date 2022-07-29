@@ -14,6 +14,7 @@ class Config():
     HUMAN_RESOURCE = 'human_resource'
 
     def __init__(self):
+        self.is_debug = bool(asana.Client.access_token(os.getenv('IS_DEBUG')))
         self.client = asana.Client.access_token(os.getenv('PERSONAL_ACCESS_TOKEN'))
         self.workspace_id = os.getenv('WORKSPACE_ID')
         self.project_ids = {

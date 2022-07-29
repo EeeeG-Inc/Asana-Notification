@@ -178,8 +178,8 @@ class MyAsana():
         else:
             webhook_url = specify_webhook_url
 
-        # 紐づく webhook_url がなかった場合、デフォルトのチャンネルに通知する
-        if webhook_url is None:
+        # 紐づく webhook_url がなかった場合、もしくはデバッグモード有効の場合はデフォルトチャンネルに通知する
+        if (webhook_url is None) or (self.config.is_debug):
             webhook_url = self.config.webhook_urls['default']
 
         requests.post(webhook_url, json.dumps({
