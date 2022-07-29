@@ -42,7 +42,7 @@ pipenv shell
 
 ## スクリプト
 
-### `asana_deadline_notification_for_slack.py`
+### `asana_deadline_todo_notification_for_slack.py`
 
 - Asana のワークスペース EeeeG, Inc. の特定プロジェクトごとに、本日期限のタスクを専用 Slack チャンネルにお知らせする
 - GitHub Actions の cron で毎日実行中

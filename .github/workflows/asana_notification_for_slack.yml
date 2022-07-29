@@ -27,7 +27,7 @@ jobs:
         run: python -V
       - name: Install dependencies
         run: pip install -r requirements.txt
-      - name: Run asana_deadline_notification_for_slack.py
+      - name: Run asana_deadline_todo_notification_for_slack.py
         env:
           PERSONAL_ACCESS_TOKEN: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
           WORKSPACE_ID: ${{ secrets.WORKSPACE_ID }}
@@ -44,7 +44,7 @@ jobs:
           WEBHOOK_URL_HUMAN_RESOURCE: ${{ secrets.WEBHOOK_URL_HUMAN_RESOURCE }}
           WEBHOOK_URL_WEEKLY_TODO: ${{ secrets.WEBHOOK_URL_WEEKLY_TODO }}
         run:
-          python asana_deadline_notification_for_slack.py
+          python asana_deadline_todo_notification_for_slack.py
       - name: Run asana_weekly_todo_notification_for_slack.py
         env:
           PERSONAL_ACCESS_TOKEN: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
