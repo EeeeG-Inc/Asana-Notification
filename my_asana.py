@@ -105,7 +105,7 @@ class MyAsana():
         else:
             text = ''
 
-        text += '|Priority|Section|Task|Name|Due On|Workload|URL|Note|\n'
+        text += '|Task|Due on|Priority|Workload|Section|Name|URL|Note|\n'
         text += '|:-|:-|:-|:-|:-|:-|:-|:-|\n'
 
         for task in self.find_tasks_for_notion(project_id, assignee_id):
@@ -116,12 +116,12 @@ class MyAsana():
 
             section = self.get_section(section_ids, task)
 
-            text += '|99' + \
-                f'|{section["name"] if section is not None else None}' + \
-                f'|{task["name"]}' + \
-                f'|{task["assignee"]["name"] if task["assignee"] is not None else None}' + \
+            text += f'|{task["name"]}' + \
                 f'|{task["due_on"]}' +\
+                '|99' + \
                 '|0' + \
+                f'|{section["name"] if section is not None else None}' + \
+                f'|{task["assignee"]["name"] if task["assignee"] is not None else None}' + \
                 f'|https://app.asana.com/0/{project_id}/{task["gid"]}' + \
                 '|'
             text += "|\n"
