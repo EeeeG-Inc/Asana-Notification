@@ -29,7 +29,7 @@ class AsanaWeeklyTodoCopyForNotion():
             for section_id in section_ids:
                 all_section_ids.append(section_id)
 
-        text = asana.get_str_tasks_for_notion(project_id, all_section_ids, users[int(str_user_id)])
+        text = asana.get_str_assignee_tasks_for_notion(project_id, all_section_ids, users[int(str_user_id)])
 
         pyperclip.copy(text)
 

@@ -31,7 +31,7 @@ class MyAsana():
     """
     単一プロジェクトに紐付いたタスクを取得する
     """
-    def find_tasks_for_slack(self, project_id):
+    def find_tasks_by_project(self, project_id):
         param = {
             'completed_since': 'now',
             'project': project_id,
@@ -51,7 +51,7 @@ class MyAsana():
     """
     従業員に紐付いた、全てのプロジェクトのタスクを取得する
     """
-    def find_tasks_for_notion(self, project_id, assignee_id):
+    def find_tasks_by_assignee(self, project_id, assignee_id):
         param = {
             'completed_since': 'now',
             'opt_fields': [
@@ -77,10 +77,10 @@ class MyAsana():
     """
     Slack 投稿用のテキストを作成
     """
-    def get_str_tasks_for_slack(self, project_id, section_ids):
+    def get_str_deadline_tasks_for_slack(self, project_id, section_ids):
         text = '期限切れのタスク一覧\n'
 
-        for task in self.find_tasks_for_slack(project_id):
+        for task in self.find_tasks_by_project(project_id):
             section = self.get_section(section_ids, task)
 
             # 期限が今日までタスクを取得
@@ -98,9 +98,10 @@ class MyAsana():
 
     """
     Notion に貼り付けるとインラインデータベースになる Markdown テーブル書式のテキストを作成
+    isPlainText を True にすると、Slack 通知用の形式で取得できる
     """
-    def get_str_tasks_for_notion(self, project_id, section_ids, assignee_id, isSlackNotification=False):
-        if isSlackNotification:
+    def get_str_assignee_tasks_for_notion(self, project_id, section_ids, assignee_id, isPlainText=False):
+        if isPlainText:
             text = '```'
         else:
             text = ''
@@ -108,7 +109,7 @@ class MyAsana():
         text += '|Task|Due on|Priority|Workload|Section|Name|URL|Note|\n'
         text += '|:-|:-|:-|:-|:-|:-|:-|:-|\n'
 
-        for task in self.find_tasks_for_notion(project_id, assignee_id):
+        for task in self.find_tasks_by_assignee(project_id, assignee_id):
 
             # 期限が 1 週間先までのタスクを取得
             if not self.is_within_limit(task, 7):
@@ -126,7 +127,7 @@ class MyAsana():
                 '|'
             text += "|\n"
 
-        if isSlackNotification:
+        if isPlainText:
             text += '```'
 
         return text
