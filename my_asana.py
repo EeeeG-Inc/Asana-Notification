@@ -1,12 +1,8 @@
 from config import Config
 import datetime
-from dotenv import load_dotenv
 import json
 import requests
 import time
-
-
-load_dotenv()
 
 
 class MyAsana():

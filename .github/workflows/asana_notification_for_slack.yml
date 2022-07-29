@@ -2,10 +2,10 @@ name: asana_notification_for_slack
 
 # トリガーイベント
 on:
-  # 1. main ブランチへのプッシュ
-  push:
-    branches:
-      - main
+  # 1. main ブランチへのプッシュ: 通知がうざいから停止中
+  # push:
+  #   branches:
+  #     - main
   # 2. GitHub 上の手動実行
   workflow_dispatch:
   # 3. crontab
@@ -27,8 +27,7 @@ jobs:
         run: python -V
       - name: Install dependencies
         run: pip install -r requirements.txt
-      - name: Run Python Script
-        # GitHub Secrets に登録した環境変数
+      - name: Run asana_deadline_notification_for_slack.py
         env:
           PERSONAL_ACCESS_TOKEN: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
           WORKSPACE_ID: ${{ secrets.WORKSPACE_ID }}
@@ -46,4 +45,21 @@ jobs:
           WEBHOOK_URL_WEEKLY_TODO: ${{ secrets.WEBHOOK_URL_WEEKLY_TODO }}
         run:
           python asana_deadline_notification_for_slack.py
+      - name: Run asana_weekly_todo_notification_for_slack.py
+        env:
+          PERSONAL_ACCESS_TOKEN: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
+          WORKSPACE_ID: ${{ secrets.WORKSPACE_ID }}
+          PROJIECT_ID_DEVELOP: ${{ secrets.PROJIECT_ID_DEVELOP }}
+          PROJIECT_ID_DESIGN: ${{ secrets.PROJIECT_ID_DESIGN }}
+          PROJIECT_ID_GENERAL_AFFAIRS: ${{ secrets.PROJIECT_ID_GENERAL_AFFAIRS }}
+          PROJIECT_ID_SALES: ${{ secrets.PROJIECT_ID_SALES }}
+          PROJIECT_ID_HUMAN_RESOURCE: ${{ secrets.PROJIECT_ID_HUMAN_RESOURCE }}
+          WEBHOOK_URL_DEFAULT: ${{ secrets.WEBHOOK_URL_DEFAULT }}
+          WEBHOOK_URL_DEVELOP: ${{ secrets.WEBHOOK_URL_DEVELOP }}
+          WEBHOOK_URL_DESIGN: ${{ secrets.WEBHOOK_URL_DESIGN }}
+          WEBHOOK_URL_GENERAL_AFFAIRS: ${{ secrets.WEBHOOK_URL_GENERAL_AFFAIRS }}
+          WEBHOOK_URL_SALES: ${{ secrets.WEBHOOK_URL_SALES }}
+          WEBHOOK_URL_HUMAN_RESOURCE: ${{ secrets.WEBHOOK_URL_HUMAN_RESOURCE }}
+          WEBHOOK_URL_WEEKLY_TODO: ${{ secrets.WEBHOOK_URL_WEEKLY_TODO }}
+        run:
           python asana_weekly_todo_notification_for_slack.py
