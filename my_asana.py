@@ -204,7 +204,7 @@ class MyAsana():
 
         # TickTick 用のテキスト整形
         texts[self.config.TICKTICK] += f'[{task["name"]}]' + \
-            f'(https://app.asana.com/0/0/{task["gid"]})\n'
+            f'(https://app.asana.com/0/0/{task["gid"]}) {task["due_on"]}\n'
 
         return texts
 
