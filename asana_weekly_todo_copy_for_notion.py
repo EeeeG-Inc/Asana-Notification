@@ -6,20 +6,24 @@ class AsanaWeeklyTodoCopyForNotion():
 
     def run(self):
         asana = MyAsana()
-        users = {}
+        users = list(asana.get_users())
+        users_for_prompt = {}
         user_id = 1
-        all_section_ids = []
+        section_ids_of_all_projects = []
 
         print('データが欲しい担当者の番号を入力してください')
 
-        for user in list(asana.get_users()):
-            users[user_id] = user['gid']
+        for user in users:
+            users_for_prompt[user_id] = {
+                'gid': user['gid'],
+                'name': user['name'],
+            }
             print(str(user_id) + '. ' + user['name'])
             user_id += 1
 
         while True:
-            str_user_id = input('番号入力: ')
-            if int(str_user_id) in users:
+            input_user_id = int(input('番号入力: '))
+            if input_user_id in users_for_prompt:
                 break
             else:
                 print('不正な番号です')
@@ -27,9 +31,9 @@ class AsanaWeeklyTodoCopyForNotion():
         for _, project_id in asana.config.project_ids.items():
             section_ids = [section['gid'] for section in asana.find_sections_for_project(project_id)]
             for section_id in section_ids:
-                all_section_ids.append(section_id)
+                section_ids_of_all_projects.append(section_id)
 
-        text = asana.get_str_assignee_tasks_for_notion(project_id, all_section_ids, users[int(str_user_id)])
+        text = asana.get_str_assignee_tasks_for_notion(section_ids_of_all_projects, users_for_prompt[input_user_id])
 
         pyperclip.copy(text)
 

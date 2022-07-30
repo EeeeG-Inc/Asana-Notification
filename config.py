@@ -21,8 +21,6 @@ class Config():
         else:
             self.is_debug = bool(int(is_debug))
 
-        print(self.is_debug)
-
         self.client = asana.Client.access_token(os.getenv('PERSONAL_ACCESS_TOKEN'))
         self.workspace_id = os.getenv('WORKSPACE_ID')
         self.project_ids = {

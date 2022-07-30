@@ -51,7 +51,7 @@ class MyAsana():
     """
     従業員に紐付いた、全てのプロジェクトのタスクを取得する
     """
-    def find_tasks_by_assignee(self, project_id, assignee_id):
+    def find_tasks_by_assignee(self, assignee_id):
         param = {
             'completed_since': 'now',
             'opt_fields': [
@@ -65,12 +65,9 @@ class MyAsana():
             ],
         }
 
-        # Assginee + Workspace ※ この絞り込みは project を同時に指定できない
         if assignee_id:
             param['assignee'] = assignee_id
             param['workspace'] = self.config.workspace_id
-        else:
-            param['project'] = project_id
 
         return self.config.client.tasks.get_tasks(param, opt_pretty=False)
 
@@ -100,17 +97,18 @@ class MyAsana():
     Notion に貼り付けるとインラインデータベースになる Markdown テーブル書式のテキストを作成
     isPlainText を True にすると、Slack 通知用の形式で取得できる
     """
-    def get_str_assignee_tasks_for_notion(self, project_id, section_ids, assignee_id, isPlainText=False):
+    def get_str_assignee_tasks_for_notion(self, section_ids, assignee, isPlainText=False):
+        assignee_id = assignee['gid']
+        text = ''
+
         if isPlainText:
-            text = '```'
-        else:
-            text = ''
+            text += f'*{assignee["name"]}*\n'
+            text += '```'
 
-        text += '|Task|Due on|Priority|Workload|Section|Name|URL|Note|\n'
-        text += '|:-|:-|:-|:-|:-|:-|:-|:-|\n'
+        text += '|Task|Due on|Priority|Workload|Section|URL|Note|\n'
+        text += '|:-|:-|:-|:-|:-|:-|:-|\n'
 
-        for task in self.find_tasks_by_assignee(project_id, assignee_id):
-
+        for task in self.find_tasks_by_assignee(assignee_id):
             # 期限が 1 週間先までのタスクを取得
             if not self.is_within_limit(task, 7):
                 continue
@@ -122,8 +120,7 @@ class MyAsana():
                 '|99' + \
                 '|0' + \
                 f'|{section["name"] if section is not None else None}' + \
-                f'|{task["assignee"]["name"] if task["assignee"] is not None else None}' + \
-                f'|https://app.asana.com/0/{project_id}/{task["gid"]}' + \
+                f'|https://app.asana.com/0/0/{task["gid"]}' + \
                 '|'
             text += "|\n"
 
