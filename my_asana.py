@@ -189,7 +189,7 @@ class MyAsana():
             text += '```'
 
         if target == self.config.NOTION:
-            text += '|Task|Due on|Priority|Workload|Section|URL|Note|Exported|\n'
+            text += '|Task|Due on|Priority|Workload (h)|Section|URL|Note|Exported|\n'
             text += '|:-|:-|:-|:-|:-|:-|:-|:-|\n'
 
         return text
@@ -201,7 +201,7 @@ class MyAsana():
         # Notion 用のテキスト整形
         texts[self.config.NOTION] += f'|{task["name"]}' + \
             f'|{task["due_on"]}' +\
-            '|99' + \
+            '|9' + \
             '|0' + \
             f'|{section["name"] if section is not None else None}' + \
             f'|https://app.asana.com/0/0/{task["gid"]}' + \
