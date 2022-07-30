@@ -54,9 +54,15 @@ pipenv shell
 ### `asana_weekly_todo_notification_for_slack.py`
 
 - Asana のワークスペース EeeeG, Inc. 全体から、従業員ごとに、期限が 1 週間以内のタスクを Slack の `weekly_todo_notification` チャンネルにお知らせする
+- お知らせ形式
+  - Notion
+    - Notion にペーストすると Inline Database 形式になる
+  - TickTick
+    - TickTick のタスク登録欄にペーストすると、タスクを一括登録できる
 - GitHub Actions の cron で毎日実行中
 
 ### `asana_weekly_todo_copy_for_notion.py`
 
 - ローカルで実行すると `asana_weekly_todo_notification_for_slack.py` の内容をクリップボードに保存できる
+  - 期限が 1 週間以内のタスクだけではなく、期限が当日から 1 年後のタスクまで取得することも可能
 - Asana をメンテするミーティングなどで、リアルタイムで TODO が知りたい場合に活用

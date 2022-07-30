@@ -97,7 +97,7 @@ class MyAsana():
     Notion に貼り付けるとインラインデータベースになる Markdown テーブル書式のテキストを作成
     is_plaintext を True にすると、Slack 通知用の形式で取得できる
     """
-    def get_str_assignee_tasks(self, section_ids, assignee, is_plaintext=False):
+    def get_str_assignee_tasks(self, section_ids, assignee, is_plaintext=False, limit=7):
         assignee_id = assignee['gid']
         texts = {
             self.config.NOTION: self.init_text(assignee, is_plaintext, self.config.NOTION),
@@ -105,8 +105,8 @@ class MyAsana():
         }
 
         for task in self.find_tasks_by_assignee(assignee_id):
-            # 期限が 1 週間先までのタスクを取得
-            if not self.is_within_limit(task, 7):
+            # デフォルトでは、期限が 1 週間先までのタスクを取得
+            if not self.is_within_limit(task, limit):
                 continue
 
             section = self.get_section(section_ids, task)
@@ -203,8 +203,9 @@ class MyAsana():
             '|\n'
 
         # TickTick 用のテキスト整形
-        texts[self.config.TICKTICK] += f'[{task["name"]}]' + \
-            f'(https://app.asana.com/0/0/{task["gid"]}) {task["due_on"]}\n'
+        texts[self.config.TICKTICK] += f'{task["due_on"]} ' + \
+            f'[{task["name"]}]' + \
+            f'(https://app.asana.com/0/0/{task["gid"]})\n'
 
         return texts
 
