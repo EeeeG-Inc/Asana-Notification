@@ -8,6 +8,7 @@ import time
 class MyAsana():
     def __init__(self):
         self.config = Config()
+        self.today = datetime.date.today()
 
     """
     ワークスペースに参加しているユーザ全員を取得する
@@ -136,8 +137,7 @@ class MyAsana():
             return False
 
         due_on = time.strptime(task["due_on"], "%Y-%m-%d")
-        today = datetime.date.today()
-        after_week = time.strptime(str(today + datetime.timedelta(days=limit)), "%Y-%m-%d")
+        after_week = time.strptime(str(self.today + datetime.timedelta(days=limit)), "%Y-%m-%d")
 
         if due_on > after_week:
             return False
@@ -205,7 +205,8 @@ class MyAsana():
         # TickTick 用のテキスト整形
         texts[self.config.TICKTICK] += f'{task["due_on"]} ' + \
             f'[{task["name"]}]' + \
-            f'(https://app.asana.com/0/0/{task["gid"]})\n'
+            f'(https://app.asana.com/0/0/{task["gid"]}) ' + \
+            f'imported on {str(self.today)}\n'
 
         return texts
 
