@@ -74,7 +74,7 @@ class MyAsana():
     """
     Slack 投稿用のテキストを作成
     """
-    def get_str_deadline_tasks_for_slack(self, project_id, section_ids):
+    def get_str_deadline_tasks(self, project_id, section_ids):
         text = '期限切れのタスク一覧\n'
 
         for task in self.find_tasks_by_project(project_id):
@@ -95,18 +95,14 @@ class MyAsana():
 
     """
     Notion に貼り付けるとインラインデータベースになる Markdown テーブル書式のテキストを作成
-    isPlainText を True にすると、Slack 通知用の形式で取得できる
+    is_plaintext を True にすると、Slack 通知用の形式で取得できる
     """
-    def get_str_assignee_tasks_for_notion(self, section_ids, assignee, isPlainText=False):
+    def get_str_assignee_tasks(self, section_ids, assignee, is_plaintext=False):
         assignee_id = assignee['gid']
-        text = ''
-
-        if isPlainText:
-            text += f'*{assignee["name"]}*\n'
-            text += '```'
-
-        text += '|Task|Due on|Priority|Workload|Section|URL|Note|\n'
-        text += '|:-|:-|:-|:-|:-|:-|:-|\n'
+        texts = {
+            self.config.NOTION: self.init_text(assignee, is_plaintext, self.config.NOTION),
+            self.config.TICKTICK: self.init_text(assignee, is_plaintext, self.config.TICKTICK)
+        }
 
         for task in self.find_tasks_by_assignee(assignee_id):
             # 期限が 1 週間先までのタスクを取得
@@ -114,20 +110,9 @@ class MyAsana():
                 continue
 
             section = self.get_section(section_ids, task)
+            texts = self.add_task_to_text(task, texts, section)
 
-            text += f'|{task["name"]}' + \
-                f'|{task["due_on"]}' +\
-                '|99' + \
-                '|0' + \
-                f'|{section["name"] if section is not None else None}' + \
-                f'|https://app.asana.com/0/0/{task["gid"]}' + \
-                '|'
-            text += "|\n"
-
-        if isPlainText:
-            text += '```'
-
-        return text
+        return self.end_text(texts, is_plaintext)
 
     """
     Asana でとってきたタスクにセクションを設定する
@@ -186,3 +171,50 @@ class MyAsana():
             # ポストされるメンションの有効化
             'link_names': 1,
         }))
+
+        """
+        get_str_assignee_tasks のメッセージ初期化
+        """
+    def init_text(self, assignee, is_plaintext, target):
+        text = ''
+
+        if is_plaintext:
+            text += f'*{assignee["name"]}*\n'
+            text += '```'
+
+        if target == self.config.NOTION:
+            text += '|Task|Due on|Priority|Workload|Section|URL|Note|\n'
+            text += '|:-|:-|:-|:-|:-|:-|:-|\n'
+
+        return text
+
+        """
+        get_str_assignee_tasks のメッセージにタスク追加
+        """
+    def add_task_to_text(self, task, texts, section):
+        # Notion 用のテキスト整形
+        texts[self.config.NOTION] += f'|{task["name"]}' + \
+            f'|{task["due_on"]}' +\
+            '|99' + \
+            '|0' + \
+            f'|{section["name"] if section is not None else None}' + \
+            f'|https://app.asana.com/0/0/{task["gid"]}' + \
+            '|' + \
+            '|\n'
+
+        # TickTick 用のテキスト整形
+        texts[self.config.TICKTICK] += f'[{task["name"]}]' + \
+            f'(https://app.asana.com/0/0/{task["gid"]})\n'
+
+        return texts
+
+        """
+        get_str_assignee_tasks のメッセージ終了部分
+        """
+    def end_text(self, texts, is_plaintext):
+        for id, text in texts.items():
+            if is_plaintext:
+                text += '```'
+                texts[id] = text
+
+        return texts

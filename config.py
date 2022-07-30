@@ -13,6 +13,9 @@ class Config():
     SALES = 'sales'
     HUMAN_RESOURCE = 'human_resource'
 
+    NOTION = 1
+    TICKTICK = 2
+
     def __init__(self):
         is_debug = os.getenv('IS_DEBUG')
 
@@ -37,5 +40,6 @@ class Config():
             self.SALES: os.getenv('WEBHOOK_URL_SALES'),
             self.HUMAN_RESOURCE: os.getenv('WEBHOOK_URL_HUMAN_RESOURCE'),
             'default': os.getenv('WEBHOOK_URL_DEFAULT'),
-            'weekly_todo': os.getenv('WEBHOOK_URL_WEEKLY_TODO'),
+            'weekly_todo_for_notion': os.getenv('WEBHOOK_URL_WEEKLY_TODO_FOR_NOTION'),
+            'weekly_todo_for_ticktick': os.getenv('WEBHOOK_URL_WEEKLY_TODO_FOR_TICKTICK'),
         }
