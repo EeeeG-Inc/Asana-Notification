@@ -183,8 +183,8 @@ class MyAsana():
             text += '```'
 
         if target == self.config.NOTION:
-            text += '|Task|Due on|Priority|Workload|Section|URL|Note|\n'
-            text += '|:-|:-|:-|:-|:-|:-|:-|\n'
+            text += '|Task|Due on|Priority|Workload|Section|URL|Note|Exported|\n'
+            text += '|:-|:-|:-|:-|:-|:-|:-|:-|\n'
 
         return text
 
@@ -200,13 +200,14 @@ class MyAsana():
             f'|{section["name"] if section is not None else None}' + \
             f'|https://app.asana.com/0/0/{task["gid"]}' + \
             '|' + \
-            '|\n'
+            '|' + \
+            f'{str(self.today)}\n'
 
         # TickTick 用のテキスト整形
         texts[self.config.TICKTICK] += f'{task["due_on"]} ' + \
             f'[{task["name"]}]' + \
             f'(https://app.asana.com/0/0/{task["gid"]}) ' + \
-            f'imported on {str(self.today)}\n'
+            f'exported on {str(self.today)}\n'
 
         return texts
 
