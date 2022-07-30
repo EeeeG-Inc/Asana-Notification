@@ -77,6 +77,7 @@ class MyAsana():
     """
     def get_str_deadline_tasks(self, project_id, section_ids):
         text = '期限切れのタスク一覧\n'
+        count = 0
 
         for task in self.find_tasks_by_project(project_id):
             section = self.get_section(section_ids, task)
@@ -89,8 +90,13 @@ class MyAsana():
                 f'{task["name"]}\t' + \
                 f'{task["assignee"]["name"] if task["assignee"] is not None else None}\t' + \
                 f'{task["due_on"]}\t' +\
-                f'https://app.asana.com/0/{project_id}/{task["gid"]}'
-            text += "\n"
+                f'https://app.asana.com/0/{project_id}/{task["gid"]}' + \
+                '\n'
+
+            count += 1
+
+        if count == 0:
+            text = None
 
         return text
 
@@ -201,13 +207,15 @@ class MyAsana():
             f'|https://app.asana.com/0/0/{task["gid"]}' + \
             '|' + \
             '|' + \
-            f'{str(self.today)}\n'
+            f'{str(self.today)}' + \
+            '\n'
 
         # TickTick 用のテキスト整形
         texts[self.config.TICKTICK] += f'{task["due_on"]} ' + \
             f'[{task["name"]}]' + \
             f'(https://app.asana.com/0/0/{task["gid"]}) ' + \
-            f'exported on {str(self.today)}\n'
+            f'exported on {str(self.today)}'  + \
+            '\n'
 
         return texts
 
