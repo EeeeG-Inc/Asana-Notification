@@ -172,9 +172,9 @@ class MyAsana():
             'link_names': 1,
         }))
 
-        """
-        get_str_assignee_tasks のメッセージ初期化
-        """
+    """
+    get_str_assignee_tasks のメッセージ初期化
+    """
     def init_text(self, assignee, is_plaintext, target):
         text = ''
 
@@ -188,9 +188,9 @@ class MyAsana():
 
         return text
 
-        """
-        get_str_assignee_tasks のメッセージにタスク追加
-        """
+    """
+    get_str_assignee_tasks のメッセージにタスク追加
+    """
     def add_task_to_text(self, task, texts, section):
         # Notion 用のテキスト整形
         texts[self.config.NOTION] += f'|{task["name"]}' + \
@@ -208,9 +208,9 @@ class MyAsana():
 
         return texts
 
-        """
-        get_str_assignee_tasks のメッセージ終了部分
-        """
+    """
+    get_str_assignee_tasks のメッセージ終了部分
+    """
     def end_text(self, texts, is_plaintext):
         for id, text in texts.items():
             if is_plaintext:
