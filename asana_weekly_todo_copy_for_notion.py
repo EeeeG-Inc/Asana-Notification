@@ -11,7 +11,7 @@ class AsanaWeeklyTodoCopyForNotion():
         users_for_prompt = self.get_users_for_prompt(users)
 
         input_user_id = self.input_user_id(users, users_for_prompt)
-        input_limit = self.input_limit()
+        input_limit = self.input_limit(asana)
         input_format_id = self.input_format_id(asana)
 
         for _, project_id in asana.config.project_ids.items():
@@ -44,17 +44,17 @@ class AsanaWeeklyTodoCopyForNotion():
 
         return input_user_id
 
-    def input_limit(self):
+    def input_limit(self, asana):
         print('\n')
         print('何日以内の期限のタスクを取得しますか (0 - 365 の日数で入力してください)')
-        print('※ 未入力の場合は 7 日になります')
+        print(f'※ 未入力の場合は {asana.default_limit} 日になります')
 
         while True:
             limit = input('日数入力: ')
 
             if (limit == '') or (limit is None):
-                limit = 7
-                print('日数入力: 7')
+                limit = asana.default_limit
+                print(f'日数入力: {asana.default_limit}')
                 break
 
             if not limit.isdigit():

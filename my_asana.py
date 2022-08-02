@@ -6,9 +6,12 @@ import time
 
 
 class MyAsana():
+    DEFAUL_LIMIT = 14
+
     def __init__(self):
         self.config = Config()
         self.today = datetime.date.today()
+        self.default_limit = self.DEFAUL_LIMIT
 
     """
     ワークスペースに参加しているユーザ全員を取得する
@@ -104,7 +107,7 @@ class MyAsana():
     Notion に貼り付けるとインラインデータベースになる Markdown テーブル書式のテキストを作成
     is_plaintext を True にすると、Slack 通知用の形式で取得できる
     """
-    def get_str_assignee_tasks(self, section_ids, assignee, is_plaintext=False, limit=7):
+    def get_str_assignee_tasks(self, section_ids, assignee, is_plaintext=False, limit=DEFAUL_LIMIT):
         assignee_id = assignee['gid']
         texts = {
             self.config.NOTION: self.init_text(assignee, is_plaintext, self.config.NOTION),
