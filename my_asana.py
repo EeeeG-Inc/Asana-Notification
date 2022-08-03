@@ -12,7 +12,7 @@ class MyAsana():
     def __init__(self):
         self.config = Config()
         self.today = datetime.date.today()
-        self.jst_today = datetime.datetime.now(ZoneInfo("Asia/Tokyo")).strftime("%Y-%m-%d %H:%M:%S")
+        self.jst_today = datetime.datetime.now(ZoneInfo("Asia/Tokyo")).strftime("%Y-%m-%d")
         self.default_limit = self.DEFAUL_LIMIT
 
     """
