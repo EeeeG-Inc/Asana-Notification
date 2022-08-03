@@ -3,6 +3,7 @@ import datetime
 import json
 import requests
 import time
+from zoneinfo import ZoneInfo
 
 
 class MyAsana():
@@ -11,6 +12,7 @@ class MyAsana():
     def __init__(self):
         self.config = Config()
         self.today = datetime.date.today()
+        self.jst_today = datetime.datetime.now(ZoneInfo("Asia/Tokyo")).strftime("%Y-%m-%d %H:%M:%S")
         self.default_limit = self.DEFAUL_LIMIT
 
     """
@@ -210,14 +212,14 @@ class MyAsana():
             f'|https://app.asana.com/0/0/{task["gid"]}' + \
             '|' + \
             '|' + \
-            f'{str(self.today)}' + \
+            f'{str(self.jst_today)}' + \
             '\n'
 
         # TickTick 用のテキスト整形
         texts[self.config.TICKTICK] += f'{task["due_on"]} ' + \
             f'[{task["name"]}]' + \
             f'(https://app.asana.com/0/0/{task["gid"]}) ' + \
-            f'exported on {str(self.today)}'  + \
+            f'exported on {str(self.jst_today)}' + \
             '\n'
 
         return texts
