@@ -10,8 +10,8 @@ on:
   workflow_dispatch:
   # 3. crontab
   schedule:
-    # 月-金 22:00 (UTC) -> 月-金 8:00 (JST)
-    - cron: "0 22 * * 1-5"
+    # 日-木 22:00 (UTC) -> 月-金 8:00 (JST)
+    - cron: "0 22 * * 7-4"
 
 jobs:
   asana_notification_for_slack:
