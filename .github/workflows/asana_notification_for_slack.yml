@@ -11,7 +11,7 @@ on:
   # 3. crontab
   schedule:
     # 日-木 22:00 (UTC) -> 月-金 8:00 (JST)
-    - cron: "0 22 * * 7-4"
+    - cron: "0 22 * * 7,1,2,3,4"
 
 jobs:
   asana_notification_for_slack:
