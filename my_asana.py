@@ -205,6 +205,7 @@ class MyAsana():
     """
     def add_task_to_text(self, task, texts, section):
         custom_field_values = self.__get_customfield_values(task['custom_fields'])
+        note = custom_field_values['note']
         mtg_date = custom_field_values['mtg_date']
         workload = custom_field_values['workload']
         progress = custom_field_values['progress']
@@ -218,9 +219,8 @@ class MyAsana():
             f'|{progress}' + \
             f'|{section["name"] if section is not None else None}' + \
             f'|https://app.asana.com/0/0/{task["gid"]}' + \
-            '|' + \
-            '|' + \
-            f'{str(self.jst_today)}' + \
+            f'|{note}' + \
+            f'|{str(self.jst_today)}' + \
             '\n'
 
         # TickTick 用のテキスト整形
@@ -245,6 +245,7 @@ class MyAsana():
 
     def __get_customfield_values(self, custom_fields):
         custom_field_values = {
+            'note': '',
             'mtg_date': '',
             'workload': 0,
             'progress': 0,
@@ -253,6 +254,8 @@ class MyAsana():
         for custom_field in custom_fields:
             for _, value in custom_field.items():
                 # ほしいカスタムフィールド名を指定する
+                if value == 'Note':
+                    custom_field_values['note'] = custom_field['text_value'] if custom_field['text_value'] is not None else ''
                 if value == 'MTG Date':
                     custom_field_values['mtg_date'] = custom_field['date_value']['date'] if custom_field['date_value'] is not None else ''
                 if value == 'Workload':
