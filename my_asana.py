@@ -1,3 +1,4 @@
+from unittest import result
 from config import Config
 import datetime
 import json
@@ -194,8 +195,8 @@ class MyAsana():
             text += '```'
 
         if target == self.config.NOTION:
-            text += '|Task|Due on|Priority|Workload (h)|Section|URL|Note|Exported|\n'
-            text += '|:-|:-|:-|:-|:-|:-|:-|:-|\n'
+            text += '|Task|Due on|MTG date|Priority|Workload|Progress (%)|Section|URL|Note|Exported|\n'
+            text += '|:-|:-|:-|:-|:-|:-|:-|:-|:-|:-|\n'
 
         return text
 
@@ -203,11 +204,18 @@ class MyAsana():
     get_str_assignee_tasks のメッセージにタスク追加
     """
     def add_task_to_text(self, task, texts, section):
+        custom_field_values = self.__get_customfield_values(task['custom_fields'])
+        mtg_date = custom_field_values['mtg_date']
+        workload = custom_field_values['workload']
+        progress = custom_field_values['progress']
+
         # Notion 用のテキスト整形
         texts[self.config.NOTION] += f'|{task["name"]}' + \
             f'|{task["due_on"]}' +\
+            f'|{mtg_date}' + \
             '|9' + \
-            '|0' + \
+            f'|{workload}' + \
+            f'|{progress}' + \
             f'|{section["name"] if section is not None else None}' + \
             f'|https://app.asana.com/0/0/{task["gid"]}' + \
             '|' + \
@@ -234,3 +242,22 @@ class MyAsana():
                 texts[id] = text
 
         return texts
+
+    def __get_customfield_values(self, custom_fields):
+        custom_field_values = {
+            'mtg_date': '',
+            'workload': 0,
+            'progress': 0,
+        }
+
+        for custom_field in custom_fields:
+            for _, value in custom_field.items():
+                # ほしいカスタムフィールド名を指定する
+                if value == 'MTG Date':
+                    custom_field_values['mtg_date'] = custom_field['date_value']['date'] if custom_field['date_value'] is not None else ''
+                if value == 'Workload':
+                    custom_field_values['workload'] = custom_field['number_value'] if custom_field['number_value'] is not None else 0
+                if value == 'Progress (%)':
+                    custom_field_values['progress'] = custom_field['number_value'] * 100 if custom_field['number_value'] is not None else 0
+
+        return custom_field_values
