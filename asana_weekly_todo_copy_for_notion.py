@@ -5,6 +5,7 @@ import pyperclip
 class AsanaWeeklyTodoCopyForNotion():
 
     def run(self):
+        is_all = False
         asana = MyAsana()
         section_ids_of_all_projects = []
         users = list(asana.get_users())
@@ -12,25 +13,33 @@ class AsanaWeeklyTodoCopyForNotion():
 
         input_user_id = self.input_user_id(users, users_for_prompt)
         input_limit = self.input_limit(asana)
-        input_format_id = self.input_format_id(asana)
+
+        if input_user_id == 0:
+            is_all = True
+        else:
+            input_format_id = self.input_format_id(asana)
 
         for _, project_id in asana.config.project_ids.items():
             section_ids = [section['gid'] for section in asana.find_sections_for_project(project_id)]
             for section_id in section_ids:
                 section_ids_of_all_projects.append(section_id)
 
-        texts = asana.get_str_assignee_tasks(section_ids_of_all_projects, users_for_prompt[input_user_id], False, input_limit)
-
-        if input_format_id == asana.config.NOTION:
-            pyperclip.copy(texts[asana.config.NOTION])
+        if is_all:
+            text = asana.get_str_assignee_tasks_for_all(section_ids_of_all_projects, users, False, input_limit)
+            pyperclip.copy(text)
         else:
-            pyperclip.copy(texts[asana.config.TICKTICK])
+            texts = asana.get_str_assignee_tasks(section_ids_of_all_projects, users_for_prompt[input_user_id], False, input_limit)
+            if input_format_id == asana.config.NOTION:
+                pyperclip.copy(texts[asana.config.NOTION])
+            else:
+                pyperclip.copy(texts[asana.config.TICKTICK])
 
         print('\n')
         print('Clipboad Copied!')
 
     def input_user_id(self, users, users_for_prompt):
         print('データが欲しい担当者の番号を入力してください')
+        print('0. ALL [Notion only]')
 
         for user_id, user in users_for_prompt.items():
             print(str(user_id) + '. ' + user['name'])
@@ -38,6 +47,8 @@ class AsanaWeeklyTodoCopyForNotion():
         while True:
             input_user_id = int(input('担当者番号入力: '))
             if input_user_id in users_for_prompt:
+                break
+            elif input_user_id == 0:
                 break
             else:
                 print('不正な番号です')
