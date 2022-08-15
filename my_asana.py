@@ -107,7 +107,7 @@ class MyAsana():
         return text
 
     """
-    Notion に貼り付けるとインラインデータベースになる Markdown テーブル書式のテキストを作成
+    Notion に貼り付けるとインラインデータベースになる Markdown テーブル書式のテキストを作成 (個別でタスクを表示)
     is_plaintext を True にすると、Slack 通知用の形式で取得できる
     """
     def get_str_assignee_tasks(self, section_ids, assignee, is_plaintext=False, limit=DEFAUL_LIMIT):
@@ -118,7 +118,6 @@ class MyAsana():
         }
 
         for task in self.find_tasks_by_assignee(assignee_id):
-            # デフォルトでは、期限が 1 週間先までのタスクを取得
             if not self.is_within_limit(task, limit):
                 continue
 
@@ -126,6 +125,25 @@ class MyAsana():
             texts = self.add_task_to_text(task, texts, section)
 
         return self.end_text(texts, is_plaintext)
+
+    """
+    Notion に貼り付けるとインラインデータベースになる Markdown テーブル書式のテキストを作成 (全員のタスクを表示)
+    is_plaintext を True にすると、Slack 通知用の形式で取得できる
+    """
+    def get_str_assignee_tasks_for_all(self, section_ids, assignees, is_plaintext=False, limit=DEFAUL_LIMIT):
+        text = self.init_text_for_all(is_plaintext)
+
+        for assignee in assignees:
+            assignee_id = assignee['gid']
+            tasks = self.find_tasks_by_assignee(assignee_id)
+            for task in tasks:
+                if not self.is_within_limit(task, limit):
+                    continue
+
+                section = self.get_section(section_ids, task)
+                text = self.add_task_to_text_for_all(task, text, section)
+
+        return self.end_text_for_all(text, is_plaintext)
 
     """
     Asana でとってきたタスクにセクションを設定する
@@ -201,6 +219,21 @@ class MyAsana():
         return text
 
     """
+    get_str_assignee_tasks のメッセージ初期化
+    """
+    def init_text_for_all(self, is_plaintext):
+        text = ''
+
+        if is_plaintext:
+            text += '*ALL*\n'
+            text += '```'
+
+        text += '|Task|Due on|MTG date|Assignee|Priority|Workload|Progress (%)|Section|URL|Note|Exported|\n'
+        text += '|:-|:-|:-|:-|:-|:-|:-|:-|:-|:-|:-|\n'
+
+        return text
+
+    """
     get_str_assignee_tasks のメッセージにタスク追加
     """
     def add_task_to_text(self, task, texts, section):
@@ -233,6 +266,33 @@ class MyAsana():
         return texts
 
     """
+    get_str_assignee_tasks のメッセージにタスク追加
+    """
+    def add_task_to_text_for_all(self, task, text, section):
+        custom_field_values = self.__get_customfield_values(task['custom_fields'])
+        assignee = task['assignee']['name']
+        note = custom_field_values['note']
+        mtg_date = custom_field_values['mtg_date']
+        workload = custom_field_values['workload']
+        progress = custom_field_values['progress']
+
+        # Notion 用のテキスト整形
+        text += f'|{task["name"]}' + \
+            f'|{task["due_on"]}' +\
+            f'|{mtg_date}' + \
+            f'|{assignee}' + \
+            '|9' + \
+            f'|{workload}' + \
+            f'|{progress}' + \
+            f'|{section["name"] if section is not None else None}' + \
+            f'|https://app.asana.com/0/0/{task["gid"]}' + \
+            f'|{note}' + \
+            f'|{str(self.jst_today)}' + \
+            '\n'
+
+        return text
+
+    """
     get_str_assignee_tasks のメッセージ終了部分
     """
     def end_text(self, texts, is_plaintext):
@@ -242,6 +302,15 @@ class MyAsana():
                 texts[id] = text
 
         return texts
+
+    """
+    get_str_assignee_tasks のメッセージ終了部分
+    """
+    def end_text_for_all(self, text, is_plaintext):
+        if is_plaintext:
+            text += '```'
+
+        return text
 
     def __get_customfield_values(self, custom_fields):
         custom_field_values = {

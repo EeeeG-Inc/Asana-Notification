@@ -13,6 +13,9 @@ class AsanaWeeklyTodoNotificationForSlack():
             for section_id in section_ids:
                 section_ids_of_all_projects.append(section_id)
 
+        text = asana.get_str_assignee_tasks_for_all(section_ids_of_all_projects, users, True)
+        asana.slack_post(None, text, 'Asana Weekly TODO for ALL', ':calendar:', asana.config.webhook_urls['weekly_todo_for_notion'])
+
         for user in users:
             texts = asana.get_str_assignee_tasks(section_ids_of_all_projects, user, True)
             asana.slack_post(None, texts[asana.config.NOTION], 'Asana Weekly TODO', ':calendar:', asana.config.webhook_urls['weekly_todo_for_notion'])
