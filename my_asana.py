@@ -254,7 +254,7 @@ class MyAsana():
             f'|https://app.asana.com/0/0/{task["gid"]}' + \
             f'|{note}' + \
             f'|{str(self.jst_today)}' + \
-            '\n'
+            '|\n'
 
         # TickTick 用のテキスト整形
         texts[self.config.TICKTICK] += f'{task["due_on"]} ' + \
@@ -288,7 +288,7 @@ class MyAsana():
             f'|https://app.asana.com/0/0/{task["gid"]}' + \
             f'|{note}' + \
             f'|{str(self.jst_today)}' + \
-            '\n'
+            '|\n'
 
         return text
 
