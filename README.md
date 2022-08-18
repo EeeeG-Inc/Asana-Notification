@@ -39,6 +39,8 @@ pipenv shell
 - `config.py` に設定
 - `.github/workflows/asana_notification_for_slack.yml` の env エントリに設定
 - ローカルで動かしたい場合は `.env` に設定
+- Webhook だけではなく、Slack API (Slack App) も仕様しています
+  - 通知対象となる Slack チャンネルにアプリを追加しないと、うまく通知されません
 
 ### デバッグモード
 
