@@ -10,7 +10,7 @@ class AsanaDeadlineTodoNotificationForSlack:
             text = asana.get_str_deadline_tasks(project_id, section_ids)
 
             if text is not None:
-                asana.slack_post(project_id, text, 'Asana Deadline TODO', ':skull:', None)
+                asana.slack_post_via_webhook(project_id, text, 'Asana Deadline TODO', ':skull:', None)
 
         print('Slack Post About Deadline Done!')
 

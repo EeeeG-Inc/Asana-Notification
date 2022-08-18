@@ -34,5 +34,8 @@ jobs:
           WEBHOOK_URL_HUMAN_RESOURCE: ${{ secrets.WEBHOOK_URL_HUMAN_RESOURCE }}
           WEBHOOK_URL_WEEKLY_TODO_FOR_NOTION: ${{ secrets.WEBHOOK_URL_WEEKLY_TODO_FOR_NOTION }}
           WEBHOOK_URL_WEEKLY_TODO_FOR_TICKTICK: ${{ secrets.WEBHOOK_URL_WEEKLY_TODO_FOR_TICKTICK }}
+          CHANNEL_ID_DEFAULT: ${{ secrets.CHANNEL_ID_DEFAULT }}
+          CHANNEL_ID_WEEKLY_TODO_NOTIFICATION_FOR_NOTION: ${{ secrets.CHANNEL_ID_WEEKLY_TODO_NOTIFICATION_FOR_NOTION }}
+          SLACK_APP_TOKEN: ${{ secrets.SLACK_APP_TOKEN }}
           IS_DEBUG: ${{ secrets.IS_DEBUG }}
         run: python asana_weekly_todo_notification_for_slack.py

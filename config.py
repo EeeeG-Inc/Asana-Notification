@@ -43,3 +43,10 @@ class Config():
             'weekly_todo_for_notion': os.getenv('WEBHOOK_URL_WEEKLY_TODO_FOR_NOTION'),
             'weekly_todo_for_ticktick': os.getenv('WEBHOOK_URL_WEEKLY_TODO_FOR_TICKTICK'),
         }
+
+        self.channel_ids = {
+            'default': os.getenv('CHANNEL_ID_DEFAULT'),
+            'weekly_todo_for_notion': os.getenv('CHANNEL_ID_WEEKLY_TODO_NOTIFICATION_FOR_NOTION'),
+        }
+
+        self.slack_app_token = os.getenv('SLACK_APP_TOKEN'),

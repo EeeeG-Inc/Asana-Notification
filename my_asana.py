@@ -2,6 +2,7 @@ from unittest import result
 from config import Config
 import datetime
 import json
+from pprint import pprint
 import requests
 import time
 from zoneinfo import ZoneInfo
@@ -131,7 +132,7 @@ class MyAsana():
     is_plaintext を True にすると、Slack 通知用の形式で取得できる
     """
     def get_str_assignee_tasks_for_all(self, section_ids, assignees, is_plaintext=False, limit=DEFAUL_LIMIT):
-        text = self.init_text_for_all(is_plaintext)
+        text = self.init_text_for_all()
 
         for assignee in assignees:
             assignee_id = assignee['gid']
@@ -143,7 +144,7 @@ class MyAsana():
                 section = self.get_section(section_ids, task)
                 text = self.add_task_to_text_for_all(task, text, section)
 
-        return self.end_text_for_all(text, is_plaintext)
+        return text
 
     """
     Asana でとってきたタスクにセクションを設定する
@@ -175,10 +176,63 @@ class MyAsana():
         return True
 
     """
-    該当する Slack チャンネルに Post する
+    Slack API (Slack App) でチャンネル情報を取得する
+    """
+    def get_slack_channels_via_api(self):
+        channels = []
+        token = 'xoxb-880772272243-3958174752740-f906ct0wndU5ojqFkYMaHdPN'
+
+        # private チャンネルのデータを取るには、作成した Slack したアプリをチャンネルに追加しないといけない
+        res = requests.post('https://slack.com/api/conversations.list', data={
+            'token': token,
+            'types': 'public_channel,private_channel',
+        }).json()
+
+        if res['channels'] is None:
+            return None
+
+        for channel in res['channels']:
+            channels.append({
+                'name': channel['name'],
+                'id': channel['id'],
+            })
+
+        return channels
+
+    """
+    Slack API (Slack App) で該当する Slack チャンネルに Post する
+    """
+    def slack_post_via_api(self, text, bot_name, bot_emoji, channel_id, is_snipet=True):
+        if self.config.is_debug:
+            channel_id = self.config.channel_ids['default']
+
+        if is_snipet:
+            # content にスニペット内容を指定すればファイル生成しなくて済む
+            requests.post('https://slack.com/api/files.upload', data={
+                'token': self.config.slack_app_token,
+                'channels': channel_id,
+                'title': str(self.jst_today) + '-todo.md',
+                'filename': str(self.jst_today) + "-todo.md",
+                'filetype': "markdown",
+                'content': text,
+            })
+        else:
+            requests.post('https://slack.com/api/chat.postMessage', data={
+                'token': self.config.slack_app_token,
+                'channel': channel_id,
+                'text': text,
+                'filename': 'test.md',
+                'username': bot_name,
+                'icon_emoji': bot_emoji,
+                # ポストされるメンションの有効化
+                'link_names': 1,
+            })
+
+    """
+    Webhook で該当する Slack チャンネルに Post する
     specify_webhook_url で直接 webhook_url を指定することも可能
     """
-    def slack_post(self, project_id, text, bot_name, bot_emoji, specify_webhook_url=None):
+    def slack_post_via_webhook(self, project_id, text, bot_name, bot_emoji, specify_webhook_url=None):
         webhook_url = None
 
         if specify_webhook_url is None:
@@ -221,14 +275,8 @@ class MyAsana():
     """
     get_str_assignee_tasks のメッセージ初期化
     """
-    def init_text_for_all(self, is_plaintext):
-        text = ''
-
-        if is_plaintext:
-            text += '*ALL*\n'
-            text += '```'
-
-        text += '|Task|Due on|MTG date|Assignee|Priority|Workload|Progress (%)|Section|URL|Note|Exported|\n'
+    def init_text_for_all(self):
+        text = '|Task|Due on|MTG date|Assignee|Priority|Workload|Progress (%)|Section|URL|Note|Exported|\n'
         text += '|:-|:-|:-|:-|:-|:-|:-|:-|:-|:-|:-|\n'
 
         return text
@@ -302,15 +350,6 @@ class MyAsana():
                 texts[id] = text
 
         return texts
-
-    """
-    get_str_assignee_tasks のメッセージ終了部分
-    """
-    def end_text_for_all(self, text, is_plaintext):
-        if is_plaintext:
-            text += '```'
-
-        return text
 
     def __get_customfield_values(self, custom_fields):
         custom_field_values = {
