@@ -363,7 +363,9 @@ class MyAsana():
             for _, value in custom_field.items():
                 # ほしいカスタムフィールド名を指定する
                 if value == 'Note':
-                    custom_field_values['note'] = custom_field['text_value'] if custom_field['text_value'] is not None else ''
+                    note = custom_field['text_value'] if custom_field['text_value'] is not None else ''
+                    # 改行コードがあると、Notion でテーブルが崩れてしまう
+                    custom_field_values['note'] = note.replace('\n', ' ')
                 if value == 'MTG Date':
                     custom_field_values['mtg_date'] = custom_field['date_value']['date'] if custom_field['date_value'] is not None else ''
                 if value == 'Workload':
