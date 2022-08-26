@@ -113,12 +113,21 @@ class MyAsana():
     """
     def get_str_assignee_tasks(self, section_ids, assignee, is_plaintext=False, limit=DEFAUL_LIMIT):
         assignee_id = assignee['gid']
+        tasks = self.find_tasks_by_assignee(assignee_id)
+
+        if len(list(tasks)) < 1:
+            texts = {
+                self.config.NOTION: self.get_text_for_no_task(assignee),
+                self.config.TICKTICK: self.get_text_for_no_task(assignee),
+            }
+            return texts
+
         texts = {
             self.config.NOTION: self.init_text(assignee, is_plaintext, self.config.NOTION),
             self.config.TICKTICK: self.init_text(assignee, is_plaintext, self.config.TICKTICK)
         }
 
-        for task in self.find_tasks_by_assignee(assignee_id):
+        for task in tasks:
             if not self.is_within_limit(task, limit):
                 continue
 
@@ -255,6 +264,13 @@ class MyAsana():
             # ポストされるメンションの有効化
             'link_names': 1,
         }))
+
+    def get_text_for_no_task(self, assignee):
+        text = f'*{assignee["name"]}*\n'
+        text += '```'
+        text += 'Nothing\n'
+        text += '```'
+        return text
 
     """
     get_str_assignee_tasks のメッセージ初期化
