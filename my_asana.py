@@ -113,9 +113,9 @@ class MyAsana():
     """
     def get_str_assignee_tasks(self, section_ids, assignee, is_plaintext=False, limit=DEFAUL_LIMIT):
         assignee_id = assignee['gid']
-        tasks = self.find_tasks_by_assignee(assignee_id)
+        tasks = list(self.find_tasks_by_assignee(assignee_id))
 
-        if len(list(tasks)) < 1:
+        if len(tasks) < 1:
             texts = {
                 self.config.NOTION: self.get_text_for_no_task(assignee),
                 self.config.TICKTICK: self.get_text_for_no_task(assignee),
