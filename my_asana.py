@@ -189,11 +189,10 @@ class MyAsana():
     """
     def get_slack_channels_via_api(self):
         channels = []
-        token = 'xoxb-880772272243-3958174752740-f906ct0wndU5ojqFkYMaHdPN'
 
         # private チャンネルのデータを取るには、作成した Slack したアプリをチャンネルに追加しないといけない
         res = requests.post('https://slack.com/api/conversations.list', data={
-            'token': token,
+            'token': self.config.slack_app_token,
             'types': 'public_channel,private_channel',
         }).json()
 
