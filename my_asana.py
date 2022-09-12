@@ -284,7 +284,7 @@ class MyAsana():
     get_str_assignee_tasks のメッセージにタスク追加
     """
     def add_task_to_text(self, task, texts, section):
-        custom_field_values = self.__get_customfield_values(task['custom_fields'])
+        custom_field_values = self.__get_customfield_values()
         note = custom_field_values['note']
         mtg_date = custom_field_values['mtg_date']
         workload = custom_field_values['workload']
@@ -316,7 +316,8 @@ class MyAsana():
     get_str_assignee_tasks のメッセージにタスク追加
     """
     def add_task_to_text_for_all(self, task, text, section):
-        custom_field_values = self.__get_customfield_values(task['custom_fields'])
+        custom_field_values = self.__get_customfield_values(task)
+
         assignee = task['assignee']['name']
         note = custom_field_values['note']
         mtg_date = custom_field_values['mtg_date']
@@ -350,13 +351,18 @@ class MyAsana():
 
         return texts
 
-    def __get_customfield_values(self, custom_fields):
+    def __get_customfield_values(self, task):
         custom_field_values = {
             'note': '',
             'mtg_date': '',
             'workload': 0,
             'progress': 0,
         }
+
+        if 'custom_fields' not in task:
+            return custom_field_values
+
+        custom_fields = task['custom_fields']
 
         for custom_field in custom_fields:
             for _, value in custom_field.items():
