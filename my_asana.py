@@ -282,8 +282,8 @@ class MyAsana():
             text += '```'
 
         if target == self.config.NOTION:
-            text += '|Task|Due on|MTG date|Priority|Workload|Progress (%)|Section|URL|Note|Exported|\n'
-            text += '|:-|:-|:-|:-|:-|:-|:-|:-|:-|:-|\n'
+            text += '|Priority|Task|Due on|MTG date|Workload|Progress (%)|Section|Note|Exported|\n'
+            text += '|:-|:-|:-|:-|:-|:-|:-|:-|:-|\n'
 
         return text
 
@@ -291,8 +291,8 @@ class MyAsana():
     get_str_assignee_tasks のメッセージ初期化
     """
     def init_text_for_all(self):
-        text = '|Task|Due on|MTG date|Assignee|Priority|Workload|Progress (%)|Section|URL|Note|Exported|\n'
-        text += '|:-|:-|:-|:-|:-|:-|:-|:-|:-|:-|:-|\n'
+        text = '|Priority|Task|Due on|MTG date|Assignee|Workload|Progress (%)|Section|Note|Exported|\n'
+        text += '|:-|:-|:-|:-|:-|:-|:-|:-|:-|:-|\n'
 
         return text
 
@@ -307,14 +307,13 @@ class MyAsana():
         progress = custom_field_values['progress']
 
         # Notion 用のテキスト整形
-        texts[self.config.NOTION] += f'|{task["name"]}' + \
+        texts[self.config.NOTION] += '|' + \
+            f'|[{task["name"]}](https://app.asana.com/0/0/{task["gid"]})' + \
             f'|{task["due_on"]}' +\
             f'|{mtg_date}' + \
-            '|9' + \
             f'|{workload}' + \
             f'|{progress}' + \
             f'|{section["name"] if section is not None else None}' + \
-            f'|https://app.asana.com/0/0/{task["gid"]}' + \
             f'|{note}' + \
             f'|{str(self.jst_today)}' + \
             '|\n'
@@ -340,15 +339,14 @@ class MyAsana():
         progress = custom_field_values['progress']
 
         # Notion 用のテキスト整形
-        text += f'|{task["name"]}' + \
+        text += '|' + \
+            f'|[{task["name"]}](https://app.asana.com/0/0/{task["gid"]})' + \
             f'|{task["due_on"]}' +\
             f'|{mtg_date}' + \
             f'|{assignee}' + \
-            '|9' + \
             f'|{workload}' + \
             f'|{progress}' + \
             f'|{section["name"] if section is not None else None}' + \
-            f'|https://app.asana.com/0/0/{task["gid"]}' + \
             f'|{note}' + \
             f'|{str(self.jst_today)}' + \
             '|\n'
