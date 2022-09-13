@@ -284,7 +284,7 @@ class MyAsana():
     get_str_assignee_tasks のメッセージにタスク追加
     """
     def add_task_to_text(self, task, texts, section):
-        custom_field_values = self.__get_customfield_values()
+        custom_field_values = self.__get_customfield_values(task)
         note = custom_field_values['note']
         mtg_date = custom_field_values['mtg_date']
         workload = custom_field_values['workload']
