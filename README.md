@@ -31,7 +31,7 @@ pipenv shell
 - Personal Access Token を取得
 - Workspace ID は下記参照
   - https://app.asana.com/api/1.0/workspaces
-- その他の Project ID などは URL から取得可能
+- その他の Project ID などは Asana URL から取得可能
 
 ### 環境変数の設定
 

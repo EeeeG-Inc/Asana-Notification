@@ -23,6 +23,7 @@ jobs:
           WORKSPACE_ID: ${{ secrets.WORKSPACE_ID }}
           PROJIECT_ID_DEVELOP: ${{ secrets.PROJIECT_ID_DEVELOP }}
           PROJIECT_ID_DESIGN: ${{ secrets.PROJIECT_ID_DESIGN }}
+          PROJIECT_ID_MOVIE: ${{ secrets.PROJIECT_ID_MOVIE }}
           PROJIECT_ID_GENERAL_AFFAIRS: ${{ secrets.PROJIECT_ID_GENERAL_AFFAIRS }}
           PROJIECT_ID_SALES: ${{ secrets.PROJIECT_ID_SALES }}
           PROJIECT_ID_HUMAN_RESOURCE: ${{ secrets.PROJIECT_ID_HUMAN_RESOURCE }}
