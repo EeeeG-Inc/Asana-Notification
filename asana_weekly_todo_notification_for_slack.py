@@ -17,8 +17,17 @@ class AsanaWeeklyTodoNotificationForSlack():
         # NOTE: Slack が Markdown → インラインデータベースのサポートをやめてしまったのでスニペット通知をするメリットがなくなってしまった
         # asana.slack_post_via_api(text, 'Asana Weekly TODO for ALL', ':calendar:', asana.config.channel_ids['weekly_todo_for_notion'], True)
 
+        # NOTE: Notion で Markdown が上手く表示されなくなってしまったので、シンプルな Markdown を用意することにする
+        is_simple = True
+
         for user in users:
-            texts = asana.get_str_assignee_tasks(section_ids_of_all_projects, user, True)
+            texts = asana.get_str_assignee_tasks(
+                section_ids_of_all_projects,
+                user,
+                True,
+                asana.DEFAUL_LIMIT,
+                is_simple
+            )
             asana.slack_post_via_webhook(None, texts[asana.config.NOTION], 'Asana Weekly TODO', ':calendar:', asana.config.webhook_urls['weekly_todo_for_notion'])
             asana.slack_post_via_webhook(None, texts[asana.config.TICKTICK], 'Asana Weekly TODO', ':calendar:', asana.config.webhook_urls['weekly_todo_for_ticktick'])
 

@@ -111,7 +111,7 @@ class MyAsana():
     Notion に貼り付けるとインラインデータベースになる Markdown テーブル書式のテキストを作成 (個別でタスクを表示)
     is_plaintext を True にすると、Slack 通知用の形式で取得できる
     """
-    def get_str_assignee_tasks(self, section_ids, assignee, is_plaintext=False, limit=DEFAUL_LIMIT):
+    def get_str_assignee_tasks(self, section_ids, assignee, is_plaintext=False, limit=DEFAUL_LIMIT, is_simple=False):
         assignee_id = assignee['gid']
         tasks = list(self.find_tasks_by_assignee(assignee_id))
 
@@ -123,8 +123,8 @@ class MyAsana():
             return texts
 
         texts = {
-            self.config.NOTION: self.init_text(assignee, is_plaintext, self.config.NOTION),
-            self.config.TICKTICK: self.init_text(assignee, is_plaintext, self.config.TICKTICK)
+            self.config.NOTION: self.init_text(assignee, is_plaintext, self.config.NOTION, is_simple),
+            self.config.TICKTICK: self.init_text(assignee, is_plaintext, self.config.TICKTICK, is_simple)
         }
 
         for task in tasks:
@@ -132,7 +132,7 @@ class MyAsana():
                 continue
 
             section = self.get_section(section_ids, task)
-            texts = self.add_task_to_text(task, texts, section)
+            texts = self.add_task_to_text(task, texts, section, is_simple)
 
         return self.end_text(texts, is_plaintext)
 
@@ -274,7 +274,7 @@ class MyAsana():
     """
     get_str_assignee_tasks のメッセージ初期化
     """
-    def init_text(self, assignee, is_plaintext, target):
+    def init_text(self, assignee, is_plaintext, target, is_simple):
         text = ''
 
         if is_plaintext:
@@ -282,8 +282,9 @@ class MyAsana():
             text += '```'
 
         if target == self.config.NOTION:
-            text += '|Priority|Task|Due on|MTG date|Workload|Progress (%)|Section|Note|Exported|\n'
-            text += '|:-|:-|:-|:-|:-|:-|:-|:-|:-|\n'
+            if not is_simple:
+                text += '|Priority|Task|Due on|MTG date|Workload|Progress (%)|Section|Note|Exported|\n'
+                text += '|:-|:-|:-|:-|:-|:-|:-|:-|:-|\n'
 
         return text
 
@@ -299,7 +300,7 @@ class MyAsana():
     """
     get_str_assignee_tasks のメッセージにタスク追加
     """
-    def add_task_to_text(self, task, texts, section):
+    def add_task_to_text(self, task, texts, section, is_simple):
         custom_field_values = self.__get_customfield_values(task)
         note = custom_field_values['note']
         mtg_date = custom_field_values['mtg_date']
@@ -307,16 +308,23 @@ class MyAsana():
         progress = custom_field_values['progress']
 
         # Notion 用のテキスト整形
-        texts[self.config.NOTION] += '|' + \
-            f'|[{task["name"]}](https://app.asana.com/0/0/{task["gid"]})' + \
-            f'|{task["due_on"]}' +\
-            f'|{mtg_date}' + \
-            f'|{workload}' + \
-            f'|{progress}' + \
-            f'|{section["name"] if section is not None else None}' + \
-            f'|{note}' + \
-            f'|{str(self.jst_today)}' + \
-            '|\n'
+        if is_simple:
+            # 数値リスト
+            texts[self.config.NOTION] += '1. ' + \
+                f'[{task["name"]}](https://app.asana.com/0/0/{task["gid"]})' + \
+                '\n'
+        else:
+            # テーブル
+            texts[self.config.NOTION] += '|' + \
+                f'|[{task["name"]}](https://app.asana.com/0/0/{task["gid"]})' + \
+                f'|{task["due_on"]}' +\
+                f'|{mtg_date}' + \
+                f'|{workload}' + \
+                f'|{progress}' + \
+                f'|{section["name"] if section is not None else None}' + \
+                f'|{note}' + \
+                f'|{str(self.jst_today)}' + \
+                '|\n'
 
         # TickTick 用のテキスト整形
         texts[self.config.TICKTICK] += f'{task["due_on"]} ' + \
