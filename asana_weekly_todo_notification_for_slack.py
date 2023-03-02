@@ -17,8 +17,8 @@ class AsanaWeeklyTodoNotificationForSlack():
         # NOTE: Slack が Markdown → インラインデータベースのサポートをやめてしまったのでスニペット通知をするメリットがなくなってしまった
         # asana.slack_post_via_api(text, 'Asana Weekly TODO for ALL', ':calendar:', asana.config.channel_ids['weekly_todo_for_notion'], True)
 
-        # NOTE: Notion で Markdown が上手く表示されなくなってしまったので、シンプルな Markdown を用意することにする
-        is_simple = True
+        # NOTE: Notion で Table の Markdown が上手く表示されなくない場合、ここで True を渡すと箇条書きの Markdown になる
+        is_simple = False
 
         for user in users:
             texts = asana.get_str_assignee_tasks(
