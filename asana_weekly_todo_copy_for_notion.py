@@ -1,5 +1,6 @@
 from my_asana import MyAsana
 import pyperclip
+from pprint import pprint
 
 
 class AsanaWeeklyTodoCopyForNotion():
@@ -8,7 +9,7 @@ class AsanaWeeklyTodoCopyForNotion():
         is_all = False
         asana = MyAsana()
         section_ids_of_all_projects = []
-        users = list(asana.get_users())
+        users = asana.get_users()
         users_for_prompt = self.get_users_for_prompt(users)
 
         input_user_id = self.input_user_id(users, users_for_prompt)
@@ -20,7 +21,8 @@ class AsanaWeeklyTodoCopyForNotion():
             input_format_id = self.input_format_id(asana)
 
         for _, project_id in asana.config.project_ids.items():
-            section_ids = [section['gid'] for section in asana.find_sections_for_project(project_id)]
+            sections = asana.find_sections_for_project(project_id)
+            section_ids = [section.gid for section in sections.data]
             for section_id in section_ids:
                 section_ids_of_all_projects.append(section_id)
 

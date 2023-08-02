@@ -1,3 +1,4 @@
+import asana
 from unittest import result
 from config import Config
 import datetime
@@ -6,7 +7,7 @@ from pprint import pprint
 import requests
 import time
 from zoneinfo import ZoneInfo
-
+import sys
 
 class MyAsana():
     DEFAUL_LIMIT = 14
@@ -21,7 +22,8 @@ class MyAsana():
     ワークスペースに参加しているユーザ全員を取得する
     """
     def get_users(self):
-        return list(self.config.client.users.get_users({'workspace': self.config.workspace_id}, opt_pretty=True))
+        users_api = asana.UsersApi(self.config.client)
+        return users_api.get_users_for_workspace(self.config.workspace_id)
 
     """
     プロジェクト情報を取得する
@@ -34,50 +36,40 @@ class MyAsana():
     単一プロジェクトに紐付いたセクションを取得する
     """
     def find_sections_for_project(self, project_id):
-        return self.config.client.sections.get_sections_for_project(project_id, {}, opt_pretty=True)
+        sections_api = asana.SectionsApi(self.config.client)
+        return sections_api.get_sections_for_project(project_id)
 
     """
     単一プロジェクトに紐付いたタスクを取得する
     """
     def find_tasks_by_project(self, project_id):
-        param = {
-            'completed_since': 'now',
-            'project': project_id,
-            'opt_fields': [
-                'this.name',
-                'this.due_on',
-                'this.custom_fields',
-                'this.assignee',
-                'this.assignee.name',
-                'this.memberships.section',
-                'this.memberships.section.name'
-            ],
-        }
-
-        return self.config.client.tasks.get_tasks(param, opt_pretty=False)
+        tasks_api = asana.TasksApi(self.config.client)
+        opt_fields = [
+            'name',
+            'due_on',
+            'custom_fields',
+            'assignee',
+            'assignee.name',
+            'memberships.section',
+            'memberships.section.name'
+        ],
+        return tasks_api.get_tasks_for_project(project_id, opt_fields=opt_fields, completed_since='now')
 
     """
     従業員に紐付いた、全てのプロジェクトのタスクを取得する
     """
     def find_tasks_by_assignee(self, assignee_id):
-        param = {
-            'completed_since': 'now',
-            'opt_fields': [
-                'this.name',
-                'this.due_on',
-                'this.custom_fields',
-                'this.assignee',
-                'this.assignee.name',
-                'this.memberships.section',
-                'this.memberships.section.name'
-            ],
-        }
-
-        if assignee_id:
-            param['assignee'] = assignee_id
-            param['workspace'] = self.config.workspace_id
-
-        return self.config.client.tasks.get_tasks(param, opt_pretty=False)
+        tasks_api = asana.TasksApi(self.config.client)
+        opt_fields = [
+            'name',
+            'due_on',
+            'custom_fields',
+            'assignee',
+            'assignee.name',
+            'memberships.section',
+            'memberships.section.name'
+        ]
+        return tasks_api.get_tasks(assignee=assignee_id, workspace=self.config.workspace_id, opt_fields=opt_fields, completed_since='now')
 
     """
     Slack 投稿用のテキストを作成
@@ -93,10 +85,10 @@ class MyAsana():
             if not self.is_within_limit(task, 0):
                 continue
 
-            text += f'■ [{section["name"] if section is not None else None}]\t' + \
-                f'{task["name"]}\t' + \
-                f'{task["assignee"]["name"] if task["assignee"] is not None else None}\t' + \
-                f'{task["due_on"]}\t' +\
+            text += f'■ [{section.name if section is not None else None}]\t' + \
+                f'{task.name}\t' + \
+                f'{task.assignee.name if task.assignee is not None else None}\t' + \
+                f'{task.due_on}\t' +\
                 f'https://app.asana.com/0/{project_id}/{task["gid"]}' + \
                 '\n'
 
@@ -112,10 +104,10 @@ class MyAsana():
     is_plaintext を True にすると、Slack 通知用の形式で取得できる
     """
     def get_str_assignee_tasks(self, section_ids, assignee, is_plaintext=False, limit=DEFAUL_LIMIT, is_simple=False):
-        assignee_id = assignee['gid']
-        tasks = list(self.find_tasks_by_assignee(assignee_id))
+        assignee_id = assignee.gid
+        tasks = self.find_tasks_by_assignee(assignee_id)
 
-        if len(tasks) < 1:
+        if len(tasks.data) < 1:
             texts = {
                 self.config.NOTION: self.get_text_for_no_task(assignee),
                 self.config.TICKTICK: self.get_text_for_no_task(assignee),
@@ -127,7 +119,7 @@ class MyAsana():
             self.config.TICKTICK: self.init_text(assignee, is_plaintext, self.config.TICKTICK, is_simple)
         }
 
-        for task in tasks:
+        for task in tasks.data:
             if not self.is_within_limit(task, limit):
                 continue
 
@@ -144,9 +136,9 @@ class MyAsana():
         text = self.init_text_for_all()
 
         for assignee in assignees:
-            assignee_id = assignee['gid']
+            assignee_id = assignee.gid
             tasks = self.find_tasks_by_assignee(assignee_id)
-            for task in tasks:
+            for task in tasks.data:
                 if not self.is_within_limit(task, limit):
                     continue
 
@@ -161,25 +153,26 @@ class MyAsana():
     事前に find_sections_for_project でセクションを取得していないと None になってしまう
     """
     def get_section(self, section_ids, task):
-        sections = list(
-            filter(
-                lambda x: x['section']['gid'] in section_ids,
-                filter(lambda x: 'section' in x, task['memberships'])
-            )
-        )
-        return sections[0]['section'] if len(sections) > 0 else None
+        for membership in task.memberships:
+            if membership.section is None:
+                continue
+
+            if membership.section.gid in section_ids:
+                return membership.section
+
+        return None
 
     """
     今日から何日後以降のタスクは不要、という判定を作成できる
     """
     def is_within_limit(self, task, limit=0):
-        if task["due_on"] is None:
+        if task.due_on is None:
             return False
 
-        due_on = time.strptime(task["due_on"], "%Y-%m-%d")
+        due_on_time = time.localtime(datetime.datetime(task.due_on.year, task.due_on.month, task.due_on.day).timestamp())
         after_week = time.strptime(str(self.today + datetime.timedelta(days=limit)), "%Y-%m-%d")
 
-        if due_on > after_week:
+        if due_on_time > after_week:
             return False
 
         return True
@@ -265,7 +258,7 @@ class MyAsana():
         }))
 
     def get_text_for_no_task(self, assignee):
-        text = f'*{assignee["name"]}*\n'
+        text = f'*{assignee.name}*\n'
         text += '```'
         text += 'Nothing\n'
         text += '```'
@@ -278,7 +271,7 @@ class MyAsana():
         text = ''
 
         if is_plaintext:
-            text += f'*{assignee["name"]}*\n'
+            text += f'*{assignee.name}*\n'
             text += '```'
 
         if target == self.config.NOTION:
@@ -311,25 +304,25 @@ class MyAsana():
         if is_simple:
             # 数値リスト
             texts[self.config.NOTION] += '1. ' + \
-                f'[{task["name"]}](https://app.asana.com/0/0/{task["gid"]})' + \
+                f'[{task.name}](https://app.asana.com/0/0/{task.gid})' + \
                 '\n'
         else:
             # テーブル
             texts[self.config.NOTION] += '|' + \
-                f'|[{task["name"]}](https://app.asana.com/0/0/{task["gid"]})' + \
-                f'|{task["due_on"]}' +\
+                f'|[{task.name}](https://app.asana.com/0/0/{task.gid})' + \
+                f'|{task.due_on}' +\
                 f'|{mtg_date}' + \
                 f'|{workload}' + \
                 f'|{progress}' + \
-                f'|{section["name"] if section is not None else None}' + \
+                f'|{section.name if section is not None else None}' + \
                 f'|{note}' + \
                 f'|{str(self.jst_today)}' + \
                 '|\n'
 
         # TickTick 用のテキスト整形
-        texts[self.config.TICKTICK] += f'{task["due_on"]} ' + \
-            f'[{task["name"]}]' + \
-            f'(https://app.asana.com/0/0/{task["gid"]}) ' + \
+        texts[self.config.TICKTICK] += f'{task.due_on} ' + \
+            f'[{task.name}]' + \
+            f'(https://app.asana.com/0/0/{task.gid}) ' + \
             f'exported on {str(self.jst_today)}' + \
             '\n'
 
@@ -341,7 +334,7 @@ class MyAsana():
     def add_task_to_text_for_all(self, task, text, section):
         custom_field_values = self.__get_customfield_values(task)
 
-        assignee = task['assignee']['name']
+        assignee = task.assignee.name
         note = custom_field_values['note']
         mtg_date = custom_field_values['mtg_date']
         workload = custom_field_values['workload']
@@ -349,13 +342,13 @@ class MyAsana():
 
         # Notion 用のテキスト整形
         text += '|' + \
-            f'|[{task["name"]}](https://app.asana.com/0/0/{task["gid"]})' + \
-            f'|{task["due_on"]}' +\
+            f'|[{task.name}](https://app.asana.com/0/0/{task.gid})' + \
+            f'|{task.due_on}' +\
             f'|{mtg_date}' + \
             f'|{assignee}' + \
             f'|{workload}' + \
             f'|{progress}' + \
-            f'|{section["name"] if section is not None else None}' + \
+            f'|{section.name if section is not None else None}' + \
             f'|{note}' + \
             f'|{str(self.jst_today)}' + \
             '|\n'
@@ -381,23 +374,20 @@ class MyAsana():
             'progress': 0,
         }
 
-        if 'custom_fields' not in task:
+        if not task.custom_fields:
             return custom_field_values
 
-        custom_fields = task['custom_fields']
-
-        for custom_field in custom_fields:
-            for _, value in custom_field.items():
-                # ほしいカスタムフィールド名を指定する
-                if value == 'Note':
-                    note = custom_field['text_value'] if custom_field['text_value'] is not None else ''
-                    # 改行コードがあると、Notion でテーブルが崩れてしまう
-                    custom_field_values['note'] = note.replace('\n', ' ')
-                if value == 'MTG Date':
-                    custom_field_values['mtg_date'] = custom_field['date_value']['date'] if custom_field['date_value'] is not None else ''
-                if value == 'Workload':
-                    custom_field_values['workload'] = custom_field['number_value'] if custom_field['number_value'] is not None else 0
-                if value == 'Progress (%)':
-                    custom_field_values['progress'] = custom_field['number_value'] * 100 if custom_field['number_value'] is not None else 0
+        for custom_field in task.custom_fields:
+            # ほしいカスタムフィールド名を指定する
+            if custom_field.name == 'Note':
+                note = custom_field.text_value if custom_field.text_value is not None else ''
+                # 改行コードがあると、Notion でテーブルが崩れてしまう
+                custom_field_values['note'] = note.replace('\n', ' ')
+            if custom_field.name == 'MTG Date':
+                custom_field_values['mtg_date'] = custom_field.date_value.date if custom_field.date_value is not None else ''
+            if custom_field.name == 'Workload':
+                custom_field_values['workload'] = custom_field.number_value if custom_field.number_value is not None else 0
+            if custom_field.name == 'Progress (%)':
+                custom_field_values['progress'] = custom_field.number_value * 100 if custom_field.number_value is not None else 0
 
         return custom_field_values

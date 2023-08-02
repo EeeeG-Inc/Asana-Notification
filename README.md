@@ -69,3 +69,7 @@ pipenv shell
 - ローカルで実行すると `asana_weekly_todo_notification_for_slack.py` の内容をクリップボードに保存できる
   - 期限が 2 週間以内のタスクだけではなく、期限が当日から 1 年後のタスクまで取得することも可能
 - Asana をメンテするミーティングなどで、リアルタイムで TODO が知りたい場合に活用
+
+# リファレンス
+
+- https://developers.asana.com/reference

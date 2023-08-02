@@ -6,7 +6,8 @@ class AsanaDeadlineTodoNotificationForSlack:
         asana = MyAsana()
 
         for _, project_id in asana.config.project_ids.items():
-            section_ids = [section['gid'] for section in asana.find_sections_for_project(project_id)]
+            sections = asana.find_sections_for_project(project_id)
+            section_ids = [section.gid for section in sections.data]
             text = asana.get_str_deadline_tasks(project_id, section_ids)
 
             if text is not None:
