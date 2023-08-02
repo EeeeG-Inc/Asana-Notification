@@ -78,7 +78,8 @@ class MyAsana():
         text = '期限切れのタスク一覧\n'
         count = 0
 
-        for task in self.find_tasks_by_project(project_id):
+        tasks = self.find_tasks_by_project(project_id)
+        for task in tasks.data:
             section = self.get_section(section_ids, task)
 
             # 期限が今日までタスクを取得
@@ -153,6 +154,9 @@ class MyAsana():
     事前に find_sections_for_project でセクションを取得していないと None になってしまう
     """
     def get_section(self, section_ids, task):
+        if task.memberships is None:
+            return None
+
         for membership in task.memberships:
             if membership.section is None:
                 continue
