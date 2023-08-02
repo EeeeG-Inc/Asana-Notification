@@ -53,3 +53,7 @@ class Config():
         }
 
         self.slack_app_token = os.getenv('SLACK_APP_TOKEN'),
+
+        # 通知不要な退職者などの氏名
+        skip_user_names = os.getenv('SKIP_USER_NAMES')
+        self.skip_user_names = skip_user_names.split(',')

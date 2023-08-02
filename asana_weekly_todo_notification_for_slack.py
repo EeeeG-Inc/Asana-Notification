@@ -21,6 +21,9 @@ class AsanaWeeklyTodoNotificationForSlack():
         is_simple = True
 
         for user in users:
+            if user["name"] in asana.config.skip_user_names:
+                continue
+
             texts = asana.get_str_assignee_tasks(
                 section_ids_of_all_projects,
                 user,

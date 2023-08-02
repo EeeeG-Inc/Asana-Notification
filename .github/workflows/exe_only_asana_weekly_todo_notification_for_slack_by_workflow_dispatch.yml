@@ -40,4 +40,5 @@ jobs:
           CHANNEL_ID_WEEKLY_TODO_NOTIFICATION_FOR_NOTION: ${{ secrets.CHANNEL_ID_WEEKLY_TODO_NOTIFICATION_FOR_NOTION }}
           SLACK_APP_TOKEN: ${{ secrets.SLACK_APP_TOKEN }}
           IS_DEBUG: ${{ secrets.IS_DEBUG }}
+          SKIP_USER_NAMES: ${{ secrets.SKIP_USER_NAMES }}
         run: python asana_weekly_todo_notification_for_slack.py
