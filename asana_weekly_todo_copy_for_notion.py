@@ -22,7 +22,7 @@ class AsanaWeeklyTodoCopyForNotion():
 
         for _, project_id in asana.config.project_ids.items():
             sections = asana.find_sections_for_project(project_id)
-            section_ids = [section.gid for section in sections.data]
+            section_ids = [section['gid'] for section in sections]
             for section_id in section_ids:
                 section_ids_of_all_projects.append(section_id)
 

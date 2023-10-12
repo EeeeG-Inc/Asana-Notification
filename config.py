@@ -25,10 +25,11 @@ class Config():
         else:
             self.is_debug = bool(int(is_debug))
 
-        # self.client = asana.Client.access_token(os.getenv('PERSONAL_ACCESS_TOKEN'))
-        configuration = asana.Configuration()
-        configuration.access_token = os.getenv('PERSONAL_ACCESS_TOKEN')
-        self.client = asana.ApiClient(configuration)
+        self.client = asana.Client.access_token(os.getenv('PERSONAL_ACCESS_TOKEN'))
+        self.client.options['client_name'] = "eeeeg_asana_notification"
+        self.client.options['headers'] = {
+            'Asana-Enable': 'new_goal_memberships',
+        }
 
         self.workspace_id = os.getenv('WORKSPACE_ID')
         self.project_ids = {
