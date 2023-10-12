@@ -82,11 +82,17 @@ class MyAsana():
             if not self.is_within_limit(task, 0):
                 continue
 
-            text += f'■ [{section.name if section is not None else None}]\t' + \
-                f'{task.name}\t' + \
-                f'{task.assignee.name if task.assignee is not None else None}\t' + \
-                f'{task.due_on}\t' +\
-                f'https://app.asana.com/0/{project_id}/{task["gid"]}' + \
+            section_name = section['name'] if section is not None else None
+            name = task['name']
+            assignee_name = task['assignee']['name'] if task['assignee'] is not None else None
+            due_on = task['due_on']
+            gid = task['gid']
+
+            text += f'■ [{section_name}]\t' + \
+                f'{name}\t' + \
+                f'{assignee_name}\t' + \
+                f'{due_on}\t' +\
+                f'https://app.asana.com/0/{project_id}/{gid}' + \
                 '\n'
 
             count += 1
