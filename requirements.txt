@@ -1,4 +1,4 @@
-asana >= 3.2.2
+asana == 4.0.11
 pyperclip >= 1.8.2
 python-dotenv >= 0.20.0
 requests >= 2.31.0
