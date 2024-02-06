@@ -26,15 +26,24 @@ class AsanaWeeklyTodoNotificationForSlack():
             if user['name'] in asana.config.skip_user_names:
                 continue
 
-            texts = asana.get_str_assignee_tasks(
+            texts1 = asana.get_str_assignee_tasks(
                 section_ids_of_all_projects,
                 user,
                 True,
                 asana.DEFAUL_LIMIT,
                 is_simple
             )
-            asana.slack_post_via_webhook(None, texts[asana.config.NOTION], 'Asana Weekly TODO', ':calendar:', asana.config.webhook_urls['weekly_todo_for_notion'])
-            asana.slack_post_via_webhook(None, texts[asana.config.TICKTICK], 'Asana Weekly TODO', ':calendar:', asana.config.webhook_urls['weekly_todo_for_ticktick'])
+
+            texts2 = asana.get_str_assignee_tasks(
+                section_ids_of_all_projects,
+                user,
+                False,
+                asana.DEFAUL_LIMIT,
+                is_simple
+            )
+
+            asana.slack_post_via_webhook(None, texts1[asana.config.NOTION], 'Asana Weekly TODO', ':calendar:', asana.config.webhook_urls['weekly_todo_for_notion'])
+            asana.slack_post_via_webhook(None, texts2[asana.config.TICKTICK], 'Asana Weekly TODO', ':calendar:', asana.config.webhook_urls['weekly_todo_for_ticktick'])
 
         print('Slack Post About Weekly TODO Done!')
 

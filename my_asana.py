@@ -343,8 +343,8 @@ class MyAsana():
         #     '\n'
 
         texts[self.config.TICKTICK] += f'対応期日 {due_on} ' + \
-            f'[{name}]' + \
-            f'(https://app.asana.com/0/0/{gid}) ' + \
+            f'<https://app.asana.com/0/0/{gid}|' + \
+            f'{name}>' + \
             '\n'
 
         return texts
