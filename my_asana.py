@@ -285,6 +285,8 @@ class MyAsana():
         if is_plaintext:
             text += f'*{name}*\n'
             text += '```'
+        else:
+            text += f'*{name}*\n'
 
         if target == self.config.NOTION:
             if not is_simple:
