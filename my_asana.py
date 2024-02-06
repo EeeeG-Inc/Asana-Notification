@@ -335,11 +335,16 @@ class MyAsana():
                 f'|{str(self.jst_today)}' + \
                 '|\n'
 
-        # TickTick 用のテキスト整形
-        texts[self.config.TICKTICK] += f'{due_on} ' + \
+        # TickTick 用のテキスト整形 (もう TickTick は使っていないためコメントアウト)
+        # texts[self.config.TICKTICK] += f'{due_on} ' + \
+        #     f'[{name}]' + \
+        #     f'(https://app.asana.com/0/0/{gid}) ' + \
+        #     f'exported on {str(self.jst_today)}' + \
+        #     '\n'
+
+        texts[self.config.TICKTICK] += f'対応期日 {due_on} ' + \
             f'[{name}]' + \
             f'(https://app.asana.com/0/0/{gid}) ' + \
-            f'exported on {str(self.jst_today)}' + \
             '\n'
 
         return texts
