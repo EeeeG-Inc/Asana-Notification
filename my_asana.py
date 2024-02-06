@@ -10,7 +10,7 @@ from zoneinfo import ZoneInfo
 import sys
 
 class MyAsana():
-    DEFAUL_LIMIT = 14
+    DEFAUL_LIMIT = 30
 
     def __init__(self):
         self.config = Config()
