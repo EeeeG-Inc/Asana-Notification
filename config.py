@@ -62,3 +62,7 @@ class Config():
         # 通知不要な退職者などの氏名
         skip_user_names = os.getenv('SKIP_USER_NAMES')
         self.skip_user_names = skip_user_names.split(',')
+
+        # Slack 通知不要な Asana プロジェクト
+        ignore_projects = os.getenv('IGNORE_PROJECTS')
+        self.ignore_projects = ignore_projects.split(',')

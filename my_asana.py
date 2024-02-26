@@ -128,6 +128,18 @@ class MyAsana():
             if not self.is_within_limit(task, limit):
                 continue
 
+            # 特定のプロジェクトは通知しない
+            ignore = False
+
+            for membership in task['memberships']:
+                if 'section' in membership:
+                    if membership['section']['gid'] in self.config.ignore_projects:
+                        ignore = True
+                        break
+
+            if ignore:
+                continue
+
             section = self.get_section(section_ids, task)
             texts = self.add_task_to_text(task, texts, section, is_simple)
 

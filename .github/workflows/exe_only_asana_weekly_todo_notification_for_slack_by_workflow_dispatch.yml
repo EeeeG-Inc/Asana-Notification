@@ -41,4 +41,5 @@ jobs:
           SLACK_APP_TOKEN: ${{ secrets.SLACK_APP_TOKEN }}
           IS_DEBUG: ${{ secrets.IS_DEBUG }}
           SKIP_USER_NAMES: ${{ secrets.SKIP_USER_NAMES }}
+          IGNORE_PROJECTS: ${{ secrets.IGNORE_PROJECTS }}
         run: python asana_weekly_todo_notification_for_slack.py
